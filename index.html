@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="de" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IP-Adressierung: Theorie & Lösungen</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Space Grotesk"', 'sans-serif'],
+                        mono: ['"Space Mono"', 'monospace'],
+                    },
+                    colors: {
+                        base: '#fffdf9', // Warm off-white paper
+                        primary: '#ffde59', // Blease Yellow
+                        net: '#3b82f6', // Bold Blue
+                        host: '#22c55e', // Bold Green
+                        mask: '#a855f7', // Bold Violet
+                        accent: '#ff5757', // Bold Red
+                        lan1: '#3b82f6', 
+                        lan2: '#22c55e', 
+                        lan3: '#ffde59', 
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #fffdf9;
+            background-image: radial-gradient(#000000 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        /* Blease / Neo-Brutalist Styles */
+        .blease-border {
+            border: 4px solid #000;
+        }
+        .blease-shadow {
+            box-shadow: 6px 6px 0px 0px #000;
+        }
+        .blease-shadow-sm {
+            box-shadow: 4px 4px 0px 0px #000;
+        }
+        .blease-card {
+            background-color: #fff;
+            border: 4px solid #000;
+            box-shadow: 8px 8px 0px 0px #000;
+            border-radius: 16px;
+        }
+        .blease-btn {
+            border: 4px solid #000;
+            box-shadow: 4px 4px 0px 0px #000;
+            transition: all 0.1s ease-in-out;
+        }
+        .blease-btn:active {
+            box-shadow: 0px 0px 0px 0px #000;
+            transform: translate(4px, 4px);
+        }
+        .blease-btn-active {
+            box-shadow: 0px 0px 0px 0px #000;
+            transform: translate(4px, 4px);
+            background-color: #ffde59;
+        }
+
+        .bit-box {
+            transition: all 0.1s ease;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.98) translateY(10px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        
+        /* Modal Animations */
+        .modal-overlay {
+            opacity: 0;
+            transition: opacity 0.2s ease-out;
+            pointer-events: none;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-content {
+            transform: scale(0.95) translateY(20px);
+            opacity: 0;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .modal-overlay.active .modal-content {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 12px; }
+        ::-webkit-scrollbar-track { background: #fffdf9; border-left: 4px solid #000; }
+        ::-webkit-scrollbar-thumb { background: #000; }
+        
+        /* Tooltips */
+        .tooltip {
+            position: relative;
+            cursor: help;
+            border-bottom: 3px dashed #000;
+            font-weight: bold;
+        }
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: max-content;
+            max-width: 250px;
+            background-color: #fff;
+            color: #000;
+            text-align: left;
+            border: 4px solid #000;
+            box-shadow: 6px 6px 0px 0px #000;
+            border-radius: 8px;
+            padding: 12px;
+            position: absolute;
+            z-index: 100;
+            bottom: 130%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.1s;
+            font-size: 0.85rem;
+            font-family: "Space Grotesk", sans-serif;
+            font-weight: bold;
+            pointer-events: none;
+        }
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Simulator Styles */
+        .device {
+            transition: all 0.1s ease;
+        }
+        .device.active-transfer {
+            background-color: #3b82f6;
+            color: #fff;
+            transform: scale(1.1);
+        }
+        .device.active-transfer-lan2 { 
+            background-color: #22c55e;
+            color: #000;
+            transform: scale(1.1);
+        }
+        .device.active-transfer-lan3 { 
+            background-color: #ffde59;
+            color: #000;
+            transform: scale(1.1);
+        }
+        .device.error-state {
+            background-color: #ff5757;
+            color: #fff;
+            animation: shake 0.4s ease-in-out;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px) rotate(-5deg); }
+            75% { transform: translateX(5px) rotate(5deg); }
+        }
+
+        .sim-line {
+            transition: stroke 0.1s, stroke-width 0.1s;
+        }
+        .sim-line.active {
+            stroke-width: 8;
+            stroke: #000;
+        }
+        .sim-line.error {
+            stroke: #ff5757;
+            stroke-width: 8;
+            stroke-dasharray: 4 4;
+        }
+
+        /* Terminal Typing */
+        .log-entry {
+            animation: fadeInLog 0.2s ease-out forwards;
+        }
+        @keyframes fadeInLog {
+            from { opacity: 0; transform: translateX(-5px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+    </style>
+</head>
+<body class="text-black selection:bg-primary selection:text-black">
+
+    <!-- Navbar -->
+    <nav class="bg-white blease-border border-x-0 border-t-0 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex flex-col xl:flex-row justify-between items-center py-4 xl:h-24">
+                <div class="flex items-center space-x-3 text-black mb-4 xl:mb-0">
+                    <div class="w-12 h-12 bg-primary blease-border rounded-full flex items-center justify-center">
+                        <i class="fas fa-network-wired text-2xl"></i>
+                    </div>
+                    <span class="font-black text-2xl tracking-tighter uppercase">IP-Masterclass</span>
+                </div>
+                <div class="flex space-x-3 overflow-x-auto w-full xl:w-auto justify-start xl:justify-center pb-4 xl:pb-0 px-2">
+                    <button onclick="switchTab('theorie')" id="tab-theorie" class="blease-btn px-5 py-2 rounded-xl text-sm font-black uppercase bg-white text-black whitespace-nowrap flex items-center">
+                        <span class="w-6 h-6 border-2 border-black rounded-full flex items-center justify-center mr-2 text-xs">1</span> Theorie
+                    </button>
+                    <button onclick="switchTab('tools')" id="tab-tools" class="blease-btn px-5 py-2 rounded-xl text-sm font-black uppercase bg-white text-black whitespace-nowrap flex items-center">
+                        <span class="w-6 h-6 border-2 border-black rounded-full flex items-center justify-center mr-2 text-xs">2</span> Rechner / Trainer
+                    </button>
+                    <button onclick="switchTab('simulation')" id="tab-simulation" class="blease-btn px-5 py-2 rounded-xl text-sm font-black uppercase bg-white text-black whitespace-nowrap flex items-center">
+                        <span class="w-6 h-6 border-2 border-black rounded-full flex items-center justify-center mr-2 text-xs">3</span> Simulator
+                    </button>
+                    <button onclick="switchTab('quiz')" id="tab-quiz" class="blease-btn px-5 py-2 rounded-xl text-sm font-black uppercase bg-white text-black whitespace-nowrap flex items-center">
+                        <span class="w-6 h-6 border-2 border-black rounded-full flex items-center justify-center mr-2 text-xs">4</span> Quiz
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto px-4 py-12 mb-20">
+
+        <!-- ========================================== -->
+        <!-- SCHRITT 1: THEORIE                         -->
+        <!-- ========================================== -->
+        <section id="theorie" class="tab-content active">
+            <div class="text-center mb-16">
+                <span class="inline-block bg-primary blease-border px-6 py-2 rounded-full text-sm font-black uppercase tracking-widest mb-6 blease-shadow-sm">Schritt 1: Das Konzept</span>
+                <h1 class="text-5xl md:text-7xl font-black text-black mb-6 uppercase tracking-tighter leading-none">Netzwerke<br>Visuell Begreifen</h1>
+                <p class="text-xl font-bold text-black max-w-2xl mx-auto bg-white p-4 blease-border rounded-xl blease-shadow-sm">Eine <span class="tooltip text-net">IP-Adresse<span class="tooltip-text">Internet Protocol. Logische Adresse zur Identifikation im Netzwerk.</span></span> ist nicht einfach nur eine Zahl, sondern ein strukturiertes Navigationssystem.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-10 mb-16">
+                <!-- Anatomie Box -->
+                <div class="blease-card p-8 md:p-10 relative flex flex-col">
+                    <div class="absolute -top-6 -left-6 w-16 h-16 bg-primary blease-border rounded-full flex items-center justify-center blease-shadow-sm z-10">
+                        <i class="fas fa-layer-group text-3xl"></i>
+                    </div>
+                    <h2 class="text-3xl font-black mb-6 uppercase mt-4">Anatomie der IP</h2>
+                    <p class="font-bold text-base mb-6 text-gray-700">Jede IPv4-Adresse besteht zwingend aus zwei logischen Teilen, damit das Internet funktioniert:</p>
+                    
+                    <div class="flex items-center justify-center bg-slate-100 p-4 blease-border rounded-xl mb-8 blease-shadow-sm font-mono font-black text-2xl md:text-3xl">
+                        <span class="text-net mr-1">192.168.1.</span><span class="text-host">10</span>
+                    </div>
+
+                    <ul class="space-y-6 font-bold text-lg mb-8 flex-grow">
+                        <li class="flex items-start">
+                            <span class="w-6 h-6 mt-1 mr-4 border-4 border-black bg-net rounded-full flex-shrink-0"></span>
+                            <div>
+                                <span class="text-net uppercase tracking-wider text-lg font-black">Netz-Anteil</span><br>
+                                <span class="text-sm font-normal text-gray-600">Identifiziert das gesamte lokale Netzwerk (LAN). Router schauen ausschließlich auf diesen Teil, um ein Paket global an den richtigen Ort zu leiten.</span>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="w-6 h-6 mt-1 mr-4 border-4 border-black bg-host rounded-full flex-shrink-0"></span>
+                            <div>
+                                <span class="text-host uppercase tracking-wider text-lg font-black">Host-Anteil</span><br>
+                                <span class="text-sm font-normal text-gray-600">Identifiziert das exakte Endgerät (PC, Smartphone) <em>innerhalb</em> dieses Netzwerks. Er muss lokal absolut einzigartig sein.</span>
+                            </div>
+                        </li>
+                    </ul>
+                    
+                    <button onclick="openModal('modal-anatomie')" class="blease-btn bg-primary text-black font-black uppercase py-3 px-6 rounded-xl w-full hover:bg-yellow-400 mt-auto flex justify-center items-center">
+                        <i class="fas fa-search-plus mr-2"></i> Warum diese Trennung?
+                    </button>
+                </div>
+
+                <!-- Maske Box -->
+                <div class="blease-card p-8 md:p-10 relative bg-net text-white flex flex-col">
+                    <div class="absolute -top-6 -right-6 w-16 h-16 bg-white text-black blease-border rounded-full flex items-center justify-center blease-shadow-sm z-10">
+                        <i class="fas fa-filter text-3xl"></i>
+                    </div>
+                    <h2 class="text-3xl font-black mb-6 uppercase mt-4">Die Subnetzmaske</h2>
+                    <p class="font-bold text-base mb-6 text-blue-100">Computer sehen keine Punkte in der IP, nur 32 Nullen & Einsen. Woher weiß der PC, wo der Netz-Teil endet? Die Maske ist die Schablone!</p>
+                    
+                    <div class="bg-black text-white p-6 blease-border rounded-xl font-mono text-sm mb-8 relative overflow-hidden blease-shadow-sm">
+                        <div class="absolute left-0 top-0 bottom-0 w-[72%] border-r-4 border-dashed border-white/50 bg-white/10"></div>
+                        <div class="relative z-10 space-y-3 font-bold text-base md:text-lg">
+                            <div class="flex justify-between"><span>IP:</span> <span>11000000.10101000.00000001.<span class="text-host">00001010</span></span></div>
+                            <div class="flex justify-between text-mask border-b-4 border-white pb-3"><span>Mask:</span> <span>11111111.11111111.11111111.<span class="text-slate-500">00000000</span></span></div>
+                            <div class="flex justify-between text-primary"><span>Netz:</span> <span>11000000.10101000.00000001.<span class="text-slate-500">00000000</span></span></div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-auto">
+                        <p class="text-lg md:text-xl font-black uppercase bg-white text-black inline-block px-4 py-2 rounded-lg blease-border w-full text-center mb-0"><span class="text-mask">1 = Netz</span> / <span class="text-host">0 = Host</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reservierte IPs -->
+            <div class="blease-card bg-white p-8 md:p-12 mb-16 relative border-accent">
+                <div class="absolute -top-6 left-1/2 transform -translate-x-1/2 w-16 h-16 bg-accent text-white blease-border rounded-full flex items-center justify-center blease-shadow-sm z-10">
+                    <i class="fas fa-ban text-3xl"></i>
+                </div>
+                <h2 class="text-3xl md:text-4xl font-black mb-4 uppercase text-center mt-4 text-accent tracking-tighter">Die verbotenen Adressen</h2>
+                <p class="font-bold text-lg mb-10 text-center max-w-3xl mx-auto text-gray-700">In absolut jedem IPv4-Netzwerk gibt es genau zwei Adressen, die spezielle Sonderaufgaben haben und <strong>niemals</strong> an einen PC oder Router vergeben werden dürfen.</p>
+
+                <div class="grid md:grid-cols-2 gap-8 mb-8">
+                    <div class="bg-blue-50 p-6 md:p-8 blease-border rounded-2xl blease-shadow-sm relative overflow-hidden">
+                        <div class="absolute -right-4 -bottom-4 opacity-10"><i class="fas fa-map-signs text-9xl"></i></div>
+                        <h3 class="text-2xl font-black text-net uppercase mb-3 relative z-10">1. Die Netz-Adresse</h3>
+                        <div class="font-mono font-bold bg-white px-3 py-1 blease-border rounded-md inline-block mb-4 relative z-10">Host-Bits sind alle <span class="text-accent">0</span></div>
+                        <p class="text-sm font-bold relative z-10 text-gray-700">Identifiziert das gesamte Netzwerk als Ganzes für die Routing-Tabellen.</p>
+                    </div>
+                    <div class="bg-red-50 p-6 md:p-8 blease-border rounded-2xl blease-shadow-sm relative overflow-hidden">
+                        <div class="absolute -right-4 -bottom-4 opacity-10"><i class="fas fa-bullhorn text-9xl"></i></div>
+                        <h3 class="text-2xl font-black text-accent uppercase mb-3 relative z-10">2. Die Broadcast-Adresse</h3>
+                        <div class="font-mono font-bold bg-white px-3 py-1 blease-border rounded-md inline-block mb-4 relative z-10">Host-Bits sind alle <span class="text-accent">1</span></div>
+                        <p class="text-sm font-bold relative z-10 text-gray-700">Der "Megafon"-Kanal. Pakete an diese Adresse werden an <em>alle</em> Geräte im LAN gesendet.</p>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="openModal('modal-reserviert')" class="blease-btn bg-black text-white font-black uppercase py-3 px-8 rounded-xl hover:bg-gray-800">
+                        <i class="fas fa-bomb mr-2"></i> Was passiert bei falscher Vergabe?
+                    </button>
+                </div>
+            </div>
+
+            <!-- Interaktiver Slider Bereich -->
+            <div class="blease-card bg-white p-8 md:p-12 mb-16">
+                <div class="text-center mb-10">
+                    <h2 class="text-4xl font-black mb-4 uppercase">Der <span class="text-primary bg-black px-3 rounded-lg">CIDR</span>-Slider</h2>
+                    <p class="text-xl font-bold">Verschiebe die Trennlinie zwischen Netz- und Host-Bits live.</p>
+                </div>
+
+                <div class="flex items-center space-x-6 mb-12">
+                    <span class="text-3xl font-black text-net">/8</span>
+                    <input type="range" id="cidrSlider" min="8" max="30" value="24" class="w-full h-6 bg-black rounded-full appearance-none cursor-pointer border-4 border-black outline-none accent-primary">
+                    <span class="text-3xl font-black text-host">/30</span>
+                </div>
+                
+                <div class="text-center mb-10">
+                    <div class="inline-block bg-primary blease-border px-8 py-3 rounded-2xl blease-shadow">
+                        <span class="text-5xl font-mono font-black" id="sliderCidrText">/24</span>
+                    </div>
+                </div>
+
+                <!-- 32 Bits Visualization -->
+                <div class="flex flex-wrap justify-center gap-1 md:gap-2 mb-12" id="bitContainer">
+                    <!-- JS generiert 32 Boxen -->
+                </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div class="bg-white border-4 border-black p-4 rounded-2xl blease-shadow-sm text-center">
+                        <div class="text-xs uppercase font-black tracking-widest mb-2">Maske</div>
+                        <div class="text-lg md:text-xl font-mono font-black text-mask" id="sliderMaskText">255.255.255.0</div>
+                    </div>
+                    <div class="bg-white border-4 border-black p-4 rounded-2xl blease-shadow-sm text-center">
+                        <div class="text-xs uppercase font-black tracking-widest mb-2">Netz-Bits</div>
+                        <div class="text-3xl md:text-4xl font-black text-net" id="sliderNetBits">24</div>
+                    </div>
+                    <div class="bg-white border-4 border-black p-4 rounded-2xl blease-shadow-sm text-center">
+                        <div class="text-xs uppercase font-black tracking-widest mb-2">Host-Bits</div>
+                        <div class="text-3xl md:text-4xl font-black text-host" id="sliderHostBits">8</div>
+                    </div>
+                    <div class="bg-white border-4 border-black p-4 rounded-2xl blease-shadow-sm text-center">
+                        <div class="text-xs uppercase font-black tracking-widest mb-2">Hosts</div>
+                        <div class="text-3xl md:text-4xl font-black" id="sliderHosts">254</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tech-Fakten -->
+            <div class="blease-card bg-black text-white p-8 md:p-12 mb-16 relative">
+                <i class="fas fa-satellite text-6xl text-primary absolute -top-6 -right-6 drop-shadow-[4px_4px_0_rgba(255,255,255,1)] transform rotate-12"></i>
+                <h2 class="text-3xl font-black mb-6 uppercase text-primary">Über den Tellerrand: NAT & IPv6</h2>
+                <div class="grid md:grid-cols-2 gap-8 text-lg font-bold">
+                    <div>
+                        <span class="block border-b-4 border-white pb-2 mb-4 text-xl">1. NAT (Network Address Translation)</span>
+                        <p class="text-base text-gray-300">Im lokalen LAN verwenden wir <strong class="text-white">private IP-Adressen</strong> (wie 192.168.x.x). Diese sind im Internet ungültig (nicht routingfähig). Beim Verlassen des Netzwerks tauscht dein Router die private Adresse gegen seine einzige <strong class="text-white">öffentliche IP</strong> aus (NAT). Die Antworten leitet er später intern wieder korrekt zu.</p>
+                    </div>
+                    <div>
+                        <span class="block border-b-4 border-white pb-2 mb-4 text-xl">2. Das Ende von IPv4: Hallo IPv6</span>
+                        <p class="text-base text-gray-300">Unsere Berechnungen mit 32-Bit gelten für IPv4. Da diese 4,3 Milliarden IPs weltweit aufgebraucht sind, existiert längst <strong>IPv6</strong>. Diese Adressen sind gigantische 128 Bit lang und hexadezimal (z.B. <code class="bg-white/20 px-1 rounded text-primary">2001:db8::1</code>). Durch diese immense Menge an IPs benötigt man bei IPv6 (meistens) kein NAT mehr!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CTA NEXT -->
+            <div class="text-center">
+                <button onclick="switchTab('tools')" class="blease-btn bg-primary text-black text-2xl font-black py-6 px-12 rounded-2xl inline-flex items-center uppercase tracking-tighter hover:bg-yellow-400">
+                    Weiter zum Rechner <i class="fas fa-arrow-right ml-4 text-3xl"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- SCHRITT 2: INTERAKTIV RECHNEN & TRAINIEREN -->
+        <!-- ========================================== -->
+        <section id="tools" class="tab-content">
+            <div class="text-center mb-12">
+                <span class="inline-block bg-primary blease-border px-6 py-2 rounded-full text-sm font-black uppercase tracking-widest mb-6 blease-shadow-sm">Schritt 2: Praxis & Training</span>
+                <h1 class="text-5xl md:text-7xl font-black text-black mb-6 uppercase tracking-tighter">Router-Gehirn</h1>
+                <p class="text-xl font-bold text-black max-w-2xl mx-auto bg-white p-4 blease-border rounded-xl blease-shadow-sm">Rechnen lassen oder selbst rechnen? Wähle deinen Modus.</p>
+            </div>
+
+            <div class="max-w-4xl mx-auto">
+                
+                <!-- Toggle Mode -->
+                <div class="flex justify-center mb-8 gap-4">
+                    <button id="btn-mode-calc" onclick="setToolMode('calc')" class="blease-btn blease-btn-active bg-white text-black font-black text-lg py-3 px-8 rounded-xl uppercase">🖩 Rechner-Modus</button>
+                    <button id="btn-mode-train" onclick="setToolMode('train')" class="blease-btn bg-white text-black font-black text-lg py-3 px-8 rounded-xl uppercase">🏋️ Trainings-Modus</button>
+                </div>
+
+                <div class="blease-card p-8 md:p-12 mb-12 bg-white" id="calc-container">
+                    <div class="flex flex-col md:flex-row gap-6 mb-12">
+                        <div class="flex-1">
+                            <label class="block text-sm font-black uppercase mb-2">IP-Adresse</label>
+                            <input type="text" id="calcIp" value="192.168.1.10" class="w-full bg-white border-4 border-black rounded-xl px-6 py-4 font-mono text-xl font-bold focus:bg-yellow-50 outline-none blease-shadow-sm transition-colors">
+                        </div>
+                        <div class="md:w-32">
+                            <label class="block text-sm font-black uppercase mb-2">CIDR (/)</label>
+                            <input type="number" id="calcCidr" value="24" min="0" max="32" class="w-full bg-white border-4 border-black rounded-xl px-6 py-4 font-mono text-xl font-bold focus:bg-yellow-50 outline-none blease-shadow-sm transition-colors">
+                        </div>
+                        <div class="flex items-end">
+                            <button onclick="calculateSubnet()" class="blease-btn w-full md:w-auto bg-net text-white font-black text-xl py-4 px-10 rounded-xl uppercase">Berechnen</button>
+                        </div>
+                    </div>
+
+                    <div id="calcResults" class="hidden space-y-8">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="p-6 bg-white blease-border rounded-2xl blease-shadow-sm">
+                                <span class="text-sm font-black uppercase block mb-2 border-b-4 border-black pb-2 inline-block">Subnetzmaske</span>
+                                <span class="font-mono font-black text-3xl text-mask block" id="resMask"></span>
+                            </div>
+                            <div class="p-6 bg-white blease-border rounded-2xl blease-shadow-sm">
+                                <span class="text-sm font-black uppercase block mb-2 border-b-4 border-black pb-2 inline-block">Netz-Adresse</span>
+                                <span class="font-mono font-black text-3xl text-net block" id="resNet"></span>
+                            </div>
+                            <div class="p-6 bg-white blease-border rounded-2xl blease-shadow-sm md:col-span-2 flex flex-col md:flex-row justify-between md:items-center">
+                                <div class="mb-4 md:mb-0">
+                                    <span class="text-sm font-black uppercase block mb-2 border-b-4 border-black pb-2 inline-block">Host-Bereich (Vergebbar)</span>
+                                    <span class="font-mono font-black text-2xl text-host block" id="resRange"></span>
+                                </div>
+                                <div class="md:text-right">
+                                    <span class="text-sm font-black uppercase block mb-2 border-b-4 border-black pb-2 inline-block md:ml-auto">Anzahl</span>
+                                    <span class="font-black text-4xl block" id="resCount"></span>
+                                </div>
+                            </div>
+                            <div class="p-6 bg-white blease-border rounded-2xl blease-shadow-sm md:col-span-2">
+                                <span class="text-sm font-black uppercase block mb-2 border-b-4 border-black pb-2 inline-block text-accent">Broadcast-Adresse (Rundruf)</span>
+                                <span class="font-mono font-black text-3xl text-accent block" id="resBroadcast"></span>
+                            </div>
+                        </div>
+
+                        <!-- Visueller Rechenweg -->
+                        <div class="mt-12 bg-black text-white blease-border rounded-3xl p-6 md:p-10 shadow-[8px_8px_0_0_#ffde59] overflow-x-auto" id="visLogicBlock">
+                            <h3 class="font-black text-2xl uppercase mb-8 flex items-center"><i class="fas fa-microchip mr-4 text-primary text-3xl"></i> Logik-Simulation</h3>
+                            <div class="min-w-max font-mono text-base md:text-lg font-bold space-y-4">
+                                <div class="flex items-center"><div class="w-32">IP</div><div class="w-40 text-right mr-8" id="visIpDec"></div><div id="visIpBin" class="tracking-widest"></div></div>
+                                <div class="flex items-center border-b-4 border-dashed border-white/30 pb-4"><div class="w-32 text-mask">Maske</div><div class="w-40 text-right mr-8 text-mask" id="visMaskDec"></div><div id="visMaskBin" class="tracking-widest relative"><div class="absolute -bottom-6 right-full mr-4 font-black text-2xl text-primary">&amp;</div></div></div>
+                                <div class="flex items-center pt-2"><div class="w-32 text-net">Netz</div><div class="w-40 text-right mr-8 text-net" id="visNetDec"></div><div id="visNetBin" class="tracking-widest"></div></div>
+                                <div class="flex items-center text-slate-500 text-sm mt-8"><div class="w-32">Inv. Maske</div><div class="w-40 mr-8"></div><div id="visInvMaskBin" class="tracking-widest relative"><div class="absolute -bottom-6 right-full mr-4 font-black text-2xl text-primary">|</div></div></div>
+                                <div class="flex items-center border-t-4 border-dashed border-white/30 pt-4"><div class="w-32 text-accent">Broadcast</div><div class="w-40 text-right mr-8 text-accent" id="visBcastDec"></div><div id="visBcastBin" class="tracking-widest"></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TRAINER UI -->
+                <div class="blease-card p-8 md:p-12 mb-12 bg-white hidden" id="train-container">
+                    <h2 class="text-3xl font-black uppercase mb-2">Selbsttest</h2>
+                    <p class="text-lg font-bold mb-8">Nimm dir Zettel & Stift. Berechne die fehlenden Adressen für das folgende Netzwerk.</p>
+                    
+                    <div class="bg-black text-white p-6 rounded-2xl blease-border blease-shadow-sm mb-8 flex justify-between items-center">
+                        <span class="text-xl font-bold uppercase">Gegebene IP:</span>
+                        <span class="text-4xl font-mono font-black text-primary" id="trainGivenIp">192.168.5.50 /26</span>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-6 mb-8">
+                        <div>
+                            <label class="block text-sm font-black uppercase mb-2 text-net">Gesucht: Netz-Adresse</label>
+                            <input type="text" id="trainInputNet" placeholder="z.B. 192.168.5.0" class="w-full bg-white border-4 border-black rounded-xl px-6 py-4 font-mono text-xl font-bold focus:bg-blue-50 outline-none blease-shadow-sm transition-colors">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-black uppercase mb-2 text-accent">Gesucht: Broadcast-Adresse</label>
+                            <input type="text" id="trainInputBcast" placeholder="z.B. 192.168.5.63" class="w-full bg-white border-4 border-black rounded-xl px-6 py-4 font-mono text-xl font-bold focus:bg-red-50 outline-none blease-shadow-sm transition-colors">
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-col md:flex-row gap-4">
+                        <button onclick="checkTraining()" class="blease-btn flex-1 bg-host text-white font-black text-xl py-4 px-10 rounded-xl uppercase">Antwort prüfen</button>
+                        <button onclick="generateTrainingTask()" class="blease-btn bg-slate-200 text-black font-black text-xl py-4 px-6 rounded-xl uppercase"><i class="fas fa-sync-alt"></i> Neu</button>
+                    </div>
+
+                    <div id="trainFeedback" class="mt-8 hidden">
+                        <!-- Wird per JS gefüllt -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- CTA NEXT -->
+            <div class="text-center">
+                <button onclick="switchTab('simulation')" class="blease-btn bg-host text-black text-2xl font-black py-6 px-12 rounded-2xl inline-flex items-center uppercase tracking-tighter hover:bg-green-400">
+                    Weiter zur Simulation <i class="fas fa-satellite-dish ml-4 text-3xl"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- SCHRITT 3: SIMULATION & SANDBOX            -->
+        <!-- ========================================== -->
+        <section id="simulation" class="tab-content">
+            <div class="text-center mb-12">
+                <span class="inline-block bg-primary blease-border px-6 py-2 rounded-full text-sm font-black uppercase tracking-widest mb-6 blease-shadow-sm">Schritt 3: In Aktion</span>
+                <h1 class="text-5xl md:text-7xl font-black text-black mb-6 uppercase tracking-tighter leading-none">Netzwerk<br>Simulator</h1>
+                <p class="text-xl font-bold text-black max-w-3xl mx-auto bg-white p-4 blease-border rounded-xl blease-shadow-sm">Sende ein Paket und beobachte das Routing. Nutze die <strong>Hacker-Szenarien</strong>, um Fehler im Netz zu provozieren.</p>
+            </div>
+
+            <div class="blease-card p-8 md:p-12 mb-16 bg-white overflow-hidden">
+                
+                <!-- Sandbox Fehlerszenarien -->
+                <div class="mb-10 p-6 bg-slate-100 border-4 border-black rounded-2xl blease-shadow-sm">
+                    <h3 class="font-black uppercase mb-4 text-xl flex items-center"><i class="fas fa-skull-crossbones text-accent mr-3 text-2xl"></i> Sandbox: Fehlkonfigurationen testen</h3>
+                    <div class="flex flex-wrap gap-4">
+                        <button onclick="loadScenario('normal')" id="btn-scen-normal" class="blease-btn blease-btn-active text-black font-bold py-2 px-4 rounded-lg bg-white">Heile Welt (Normal)</button>
+                        <button onclick="loadScenario('badGw')" id="btn-scen-gw" class="blease-btn text-black font-bold py-2 px-4 rounded-lg bg-white">PC 1: Falsches Gateway</button>
+                        <button onclick="loadScenario('badMask')" id="btn-scen-mask" class="blease-btn text-black font-bold py-2 px-4 rounded-lg bg-white">PC 3: Falsche Subnetzmaske</button>
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="flex flex-col md:flex-row justify-center items-center gap-6 mb-16">
+                    <div class="flex items-center gap-4">
+                        <label class="font-black uppercase text-xl">Von</label>
+                        <select id="sim-source" class="bg-white border-4 border-black rounded-xl px-4 py-3 font-mono font-bold text-lg focus:bg-primary outline-none blease-shadow-sm cursor-pointer">
+                            <optgroup label="LAN 1 (192.168.1.0/24)">
+                                <option value="pc1">PC 1</option>
+                                <option value="pc2">PC 2</option>
+                            </optgroup>
+                            <optgroup label="LAN 2 (172.16.1.0/24)">
+                                <option value="pc3">PC 3</option>
+                                <option value="pc4">PC 4</option>
+                            </optgroup>
+                            <optgroup label="LAN 3 (10.0.0.0/29)">
+                                <option value="pc5">PC 5</option>
+                                <option value="pc6">PC 6</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <i class="fas fa-arrow-right text-3xl hidden md:block"></i>
+                    <div class="flex items-center gap-4">
+                        <label class="font-black uppercase text-xl">Nach</label>
+                        <select id="sim-target" class="bg-white border-4 border-black rounded-xl px-4 py-3 font-mono font-bold text-lg focus:bg-primary outline-none blease-shadow-sm cursor-pointer">
+                            <optgroup label="LAN 1 (192.168.1.0/24)">
+                                <option value="pc1">PC 1</option>
+                                <option value="pc2">PC 2</option>
+                            </optgroup>
+                            <optgroup label="LAN 2 (172.16.1.0/24)">
+                                <option value="pc3">PC 3</option>
+                                <option value="pc4" selected>PC 4</option>
+                            </optgroup>
+                            <optgroup label="LAN 3 (10.0.0.0/29)">
+                                <option value="pc5">PC 5</option>
+                                <option value="pc6">PC 6</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <button onclick="runSimulation()" class="blease-btn bg-accent text-white font-black text-xl py-3 px-8 rounded-xl uppercase hover:bg-red-500 ml-0 md:ml-4">
+                        Ping <i class="fas fa-play ml-2"></i>
+                    </button>
+                </div>
+
+                <!-- Topology Map -->
+                <div class="relative max-w-4xl mx-auto py-8">
+                    <!-- SVG Connections (Background) -->
+                    <svg class="absolute inset-0 w-full h-full pointer-events-none" style="z-index: 0;">
+                        <!-- Thick default lines -->
+                        <!-- LAN 1 to Router -->
+                        <line id="line-r1-sw1" x1="50%" y1="15%" x2="16.6%" y2="45%" stroke="#000" stroke-width="4" stroke-dasharray="8 8" class="sim-line" />
+                        <!-- LAN 2 to Router -->
+                        <line id="line-r1-sw2" x1="50%" y1="15%" x2="50%" y2="45%" stroke="#000" stroke-width="4" stroke-dasharray="8 8" class="sim-line" />
+                        <!-- LAN 3 to Router -->
+                        <line id="line-r1-sw3" x1="50%" y1="15%" x2="83.3%" y2="45%" stroke="#000" stroke-width="4" stroke-dasharray="8 8" class="sim-line" />
+
+                        <!-- LAN 1 PCs -->
+                        <line id="line-sw1-pc1" x1="16.6%" y1="45%" x2="8%" y2="80%" stroke="#000" stroke-width="4" stroke-dasharray="8 8" class="sim-line" />
+                        <line id="line-sw1-pc2" x1="16.6%" y1="45%" x2="25%" y2="80%" stroke="#000" stroke-width="4" stroke-dasharray="8 8" class="sim-line" />
+                        
+                        <!-- LAN 2 PCs -->
+                        <line id="line-sw2-pc3" x1="50%" y1="45%" x2="41.6%" y2="80%" stroke="#000" stroke-width="4" stroke-dasharray="8 8" class="sim-line" />
+                        <line id="line-sw2-pc4" x1="50%" y1="45%" x2="58.3%" y2="80%" stroke="#000" stroke-width="4" stroke-dasharray="8 8" class="sim-line" />
+
+                        <!-- LAN 3 PCs -->
+                        <line id="line-sw3-pc5" x1="83.3%" y1="45%" x2="75%" y2="80%" stroke="#000" stroke-width="4" stroke-dasharray="8 8" class="sim-line" />
+                        <line id="line-sw3-pc6" x1="83.3%" y1="45%" x2="91.6%" y2="80%" stroke="#000" stroke-width="4" stroke-dasharray="8 8" class="sim-line" />
+                    </svg>
+
+                    <!-- Devices (Foreground) -->
+                    <div class="relative z-10 flex flex-col items-center">
+                        <!-- Router Level -->
+                        <div class="h-32 w-full flex justify-center items-start">
+                            <div id="node-router" class="device bg-white border-4 border-black rounded-2xl p-4 flex items-center gap-4 w-72 blease-shadow-sm">
+                                <div class="bg-black text-white w-12 h-12 rounded-full flex items-center justify-center border-4 border-black"><i class="fas fa-server text-xl"></i></div>
+                                <div>
+                                    <div class="font-black text-xl uppercase">Router</div>
+                                    <div class="text-[11px] font-mono font-bold mt-1 leading-tight">
+                                        G0/0: <span class="text-blue-600">192.168.1.1</span><br>
+                                        G1/0: <span class="text-emerald-600">172.16.1.1</span><br>
+                                        G2/0: <span class="text-amber-500">10.0.0.1</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Switch Level -->
+                        <div class="h-32 w-full flex justify-between items-center px-4 md:px-12 mt-4">
+                            <!-- LAN 1 Switch -->
+                            <div id="node-sw1" class="device bg-white border-4 border-black rounded-xl p-3 flex flex-col items-center w-28 blease-shadow-sm">
+                                <i class="fas fa-random text-3xl mb-2"></i>
+                                <span class="font-black uppercase">SW 1</span>
+                                <span class="text-[10px] font-bold bg-black text-white px-2 py-1 rounded-full mt-1">LAN 1</span>
+                            </div>
+                            <!-- LAN 2 Switch -->
+                            <div id="node-sw2" class="device bg-white border-4 border-black rounded-xl p-3 flex flex-col items-center w-28 blease-shadow-sm">
+                                <i class="fas fa-random text-3xl mb-2"></i>
+                                <span class="font-black uppercase">SW 2</span>
+                                <span class="text-[10px] font-bold bg-black text-white px-2 py-1 rounded-full mt-1">LAN 2</span>
+                            </div>
+                            <!-- LAN 3 Switch -->
+                            <div id="node-sw3" class="device bg-white border-4 border-black rounded-xl p-3 flex flex-col items-center w-28 blease-shadow-sm">
+                                <i class="fas fa-random text-3xl mb-2"></i>
+                                <span class="font-black uppercase">SW 3</span>
+                                <span class="text-[10px] font-bold bg-black text-white px-2 py-1 rounded-full mt-1">LAN 3</span>
+                            </div>
+                        </div>
+
+                        <!-- PC Level -->
+                        <div class="w-full flex justify-between items-start mt-8">
+                            <!-- LAN 1 PCs -->
+                            <div class="flex gap-2 md:gap-6">
+                                <div id="node-pc1" class="device bg-white border-4 border-black rounded-xl p-3 flex flex-col items-center blease-shadow-sm w-24 md:w-36 transition-colors">
+                                    <i class="fas fa-desktop text-4xl mb-2"></i>
+                                    <span class="font-black uppercase text-sm" id="lbl-pc1-name">PC 1</span>
+                                    <span class="text-[9px] md:text-[11px] font-mono font-bold mt-1" id="lbl-pc1-ip">192.168.1.10</span>
+                                    <span class="text-[8px] md:text-[10px] font-mono text-slate-500 mt-1" id="lbl-pc1-mask">/24</span>
+                                    <span class="text-[8px] md:text-[10px] font-mono text-slate-500" id="lbl-pc1-gw">GW: .1.1</span>
+                                </div>
+                                <div id="node-pc2" class="device bg-white border-4 border-black rounded-xl p-3 flex flex-col items-center blease-shadow-sm w-24 md:w-36">
+                                    <i class="fas fa-desktop text-4xl mb-2"></i>
+                                    <span class="font-black uppercase text-sm">PC 2</span>
+                                    <span class="text-[9px] md:text-[11px] font-mono font-bold mt-1">192.168.1.11</span>
+                                </div>
+                            </div>
+                            <!-- LAN 2 PCs -->
+                            <div class="flex gap-2 md:gap-6">
+                                <div id="node-pc3" class="device bg-white border-4 border-black rounded-xl p-3 flex flex-col items-center blease-shadow-sm w-24 md:w-36 transition-colors">
+                                    <i class="fas fa-desktop text-4xl mb-2"></i>
+                                    <span class="font-black uppercase text-sm" id="lbl-pc3-name">PC 3</span>
+                                    <span class="text-[9px] md:text-[11px] font-mono font-bold mt-1" id="lbl-pc3-ip">172.16.1.10</span>
+                                    <span class="text-[8px] md:text-[10px] font-mono text-slate-500 mt-1" id="lbl-pc3-mask">/24</span>
+                                </div>
+                                <div id="node-pc4" class="device bg-white border-4 border-black rounded-xl p-3 flex flex-col items-center blease-shadow-sm w-24 md:w-36">
+                                    <i class="fas fa-desktop text-4xl mb-2"></i>
+                                    <span class="font-black uppercase text-sm">PC 4</span>
+                                    <span class="text-[9px] md:text-[11px] font-mono font-bold mt-1">172.16.1.11</span>
+                                </div>
+                            </div>
+                            <!-- LAN 3 PCs -->
+                            <div class="flex gap-2 md:gap-6">
+                                <div id="node-pc5" class="device bg-white border-4 border-black rounded-xl p-3 flex flex-col items-center blease-shadow-sm w-24 md:w-36">
+                                    <i class="fas fa-desktop text-4xl mb-2"></i>
+                                    <span class="font-black uppercase text-sm">PC 5</span>
+                                    <span class="text-[9px] md:text-[11px] font-mono font-bold mt-1">10.0.0.2</span>
+                                </div>
+                                <div id="node-pc6" class="device bg-white border-4 border-black rounded-xl p-3 flex flex-col items-center blease-shadow-sm w-24 md:w-36">
+                                    <i class="fas fa-desktop text-4xl mb-2"></i>
+                                    <span class="font-black uppercase text-sm">PC 6</span>
+                                    <span class="text-[9px] md:text-[11px] font-mono font-bold mt-1">10.0.0.3</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Simulation Terminal -->
+                <div class="mt-16 bg-black text-white blease-border rounded-2xl p-6 h-64 overflow-y-auto blease-shadow relative" id="sim-terminal">
+                    <div class="text-primary font-mono text-sm font-bold mb-2">>> SYSTEM READY. PING WARTET AUF EINGABE.</div>
+                </div>
+            </div>
+
+            <!-- CTA NEXT -->
+            <div class="text-center">
+                <button onclick="switchTab('quiz')" class="blease-btn bg-mask text-white text-2xl font-black py-6 px-12 rounded-2xl inline-flex items-center uppercase tracking-tighter hover:bg-purple-600">
+                    Bereit fürs Quiz? Los geht's <i class="fas fa-check-circle ml-4 text-3xl"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- SCHRITT 4: INTERAKTIVES QUIZ               -->
+        <!-- ========================================== -->
+        <section id="quiz" class="tab-content">
+            <div class="text-center mb-12">
+                <span class="inline-block bg-primary blease-border px-6 py-2 rounded-full text-sm font-black uppercase tracking-widest mb-6 blease-shadow-sm">Schritt 4: Prüfung</span>
+                <h1 class="text-5xl md:text-7xl font-black text-black mb-6 uppercase tracking-tighter leading-none">Netzwerk<br>Prüfung</h1>
+                <p class="text-xl font-bold text-black max-w-2xl mx-auto bg-white p-4 blease-border rounded-xl blease-shadow-sm">Teste dein Wissen aus den Arbeitsblättern 04b bis 04d.</p>
+            </div>
+
+            <div class="max-w-3xl mx-auto">
+                <div id="quiz-container" class="blease-card p-8 md:p-12">
+                    <!-- Question Header -->
+                    <div class="flex justify-between items-center mb-10 border-b-4 border-black pb-6">
+                        <span class="text-lg font-black uppercase tracking-widest bg-black text-white px-4 py-1 rounded-lg" id="quiz-progress">Frage 1 / 5</span>
+                        <span class="bg-primary border-4 border-black px-4 py-2 rounded-xl text-lg font-black blease-shadow-sm" id="quiz-score-badge">Score: 0</span>
+                    </div>
+                    
+                    <!-- Question Text -->
+                    <h2 class="text-2xl md:text-3xl font-black text-black mb-10 leading-tight uppercase" id="quiz-question-text">Lade Frage...</h2>
+                    
+                    <!-- Options -->
+                    <div class="space-y-6" id="quiz-options">
+                        <!-- Buttons injected via JS -->
+                    </div>
+
+                    <!-- Feedback Area -->
+                    <div id="quiz-feedback" class="hidden mt-10 p-8 rounded-2xl border-4 border-black blease-shadow bg-white">
+                        <div class="flex items-start gap-6">
+                            <div id="quiz-feedback-icon" class="text-5xl"></div>
+                            <div>
+                                <h3 id="quiz-feedback-title" class="font-black text-3xl mb-4 uppercase">Richtig!</h3>
+                                <p id="quiz-feedback-text" class="text-black text-lg font-bold leading-relaxed">Erklärung lädt...</p>
+                            </div>
+                        </div>
+                        <button onclick="nextQuestion()" class="blease-btn mt-8 w-full bg-black text-white font-black py-5 rounded-xl text-2xl uppercase hover:bg-gray-800">
+                            Nächste Frage <i class="fas fa-arrow-right ml-3"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Results Screen -->
+                <div id="quiz-results" class="hidden blease-card p-10 md:p-16 text-center">
+                    <i class="fas fa-trophy text-8xl text-primary mb-10 drop-shadow-[6px_6px_0_rgba(0,0,0,1)]"></i>
+                    <h2 class="text-5xl font-black text-black mb-6 uppercase tracking-tighter">Quiz Beendet!</h2>
+                    <p class="text-2xl font-bold mb-10">Dein endgültiges Ergebnis:</p>
+                    <strong class="text-7xl font-black block mb-10 bg-primary border-4 border-black py-4 rounded-3xl mx-auto w-64 blease-shadow" id="quiz-final-score">4 / 5</strong>
+                    <div id="quiz-result-message" class="p-6 bg-white border-4 border-black rounded-2xl mb-12 font-bold text-xl blease-shadow-sm"></div>
+                    <button onclick="restartQuiz()" class="blease-btn bg-black text-white font-black py-5 px-12 rounded-2xl uppercase text-2xl hover:bg-gray-800 mx-auto block">
+                        <i class="fas fa-redo-alt mr-3"></i> Neu starten
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ========================================== -->
+    <!-- MODALS (DEEP DIVES)                        -->
+    <!-- ========================================== -->
+    
+    <!-- Modal 1: Anatomie Deep Dive -->
+    <div id="modal-anatomie" class="modal-overlay hidden fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4 backdrop-blur-sm" onclick="closeModal(event, 'modal-anatomie')">
+        <div class="modal-content bg-white blease-border rounded-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto blease-shadow" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-start mb-6 border-b-4 border-black pb-4">
+                <h2 class="text-3xl font-black uppercase text-net"><i class="fas fa-search-plus mr-2"></i> Warum die Trennung?</h2>
+                <button onclick="closeModalForce('modal-anatomie')" class="text-3xl hover:text-accent transition-colors"><i class="fas fa-times-circle"></i></button>
+            </div>
+            <div class="space-y-6 text-lg font-bold text-gray-800">
+                <p>Stell dir vor, das Internet müsste <strong>jedes einzelne</strong> der über 4 Milliarden Geräte weltweit mit seiner exakten IP kennen. Die Routing-Tabellen der Core-Router würden explodieren! Das Internet wäre extrem langsam.</p>
+                <div class="bg-blue-50 p-6 rounded-xl blease-border">
+                    <h3 class="text-xl font-black uppercase mb-2 text-net">Die Lösung: Hierarchisches Routing</h3>
+                    <p>Durch die Trennung in <strong>Netz-</strong> und <strong>Host-Anteil</strong> muss ein Router in Tokio nicht wissen, wo dein spezifischer PC steht. Er schaut nur auf den Netz-Anteil ("Ach, das geht nach München!"). Er leitet das Paket an den Groß-Router in München.</p>
+                </div>
+                <p>Erst wenn das Paket am <strong>lokalen</strong> Ziel-Router ankommt, sagt dieser: <br><em>"Ah, dieses Netz verwalte ich selbst! Jetzt schaue ich auf den Host-Teil (die Hausnummer), um den richtigen PC in meinem Gebäude zu finden."</em></p>
+                <p>So bleiben die globalen Routing-Tabellen winzig und das Internet blitzschnell.</p>
+            </div>
+            <button onclick="closeModalForce('modal-anatomie')" class="blease-btn w-full mt-8 bg-black text-white py-4 rounded-xl font-black uppercase text-xl hover:bg-gray-800">Verstanden</button>
+        </div>
+    </div>
+
+    <!-- Modal 2: Reservierte IPs Deep Dive -->
+    <div id="modal-reserviert" class="modal-overlay hidden fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4 backdrop-blur-sm" onclick="closeModal(event, 'modal-reserviert')">
+        <div class="modal-content bg-white blease-border rounded-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto blease-shadow" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-start mb-6 border-b-4 border-black pb-4">
+                <h2 class="text-3xl font-black uppercase text-accent"><i class="fas fa-bomb mr-2"></i> Das Chaos-Szenario</h2>
+                <button onclick="closeModalForce('modal-reserviert')" class="text-3xl hover:text-accent transition-colors"><i class="fas fa-times-circle"></i></button>
+            </div>
+            <div class="space-y-6 text-lg font-bold text-gray-800">
+                <p>Was passiert wirklich, wenn man die Regeln ignoriert und diese IPs an Endgeräte vergibt?</p>
+                
+                <div class="bg-red-50 p-6 rounded-xl blease-border">
+                    <h3 class="text-xl font-black uppercase mb-2 text-accent">1. Der Broadcast-Unfall (.255)</h3>
+                    <p>Der Broadcast wird von wichtigen Diensten genutzt. Wenn ein PC startet, ruft er via Broadcast: <strong>"Ist hier ein DHCP-Server? Ich brauche eine IP!"</strong>. Der Switch schickt diesen Ruf an <em>jeden</em> Port.</p>
+                    <p class="mt-2 text-red-900">Hätte dein PC diese Broadcast-IP fest zugewiesen, würde er den kompletten Netzwerkmüll der gesamten Firma abfangen müssen. Die Netzwerkkarte wäre zu 100% ausgelastet, der PC würde komplett einfrieren.</p>
+                </div>
+
+                <div class="bg-blue-50 p-6 rounded-xl blease-border">
+                    <h3 class="text-xl font-black uppercase mb-2 text-net">2. Der Netz-ID-Fehler (.0)</h3>
+                    <p>Die Netz-ID ist ein abstrakter Platzhalter. Wenn der Admin dem Router sagt: <em>"Route alles für das Netz 192.168.1.0 zu Port A"</em>, ist das eine Regel. Hätte ein PC nun exakt diese IP, wäre der Router logisch überfordert: Ist das nun eine Regel oder ein echtes Stück Hardware? Betriebssysteme (wie Windows) blockieren die Eingabe der .0 bei einer /24 Maske daher sofort mit einer Fehlermeldung.</p>
+                </div>
+            </div>
+            <button onclick="closeModalForce('modal-reserviert')" class="blease-btn w-full mt-8 bg-black text-white py-4 rounded-xl font-black uppercase text-xl hover:bg-gray-800">Alles klar</button>
+        </div>
+    </div>
+
+    <!-- JS for Modals & Tabs -->
+    <script>
+        // Modal Logic
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.remove('hidden');
+            // Trigger reflow for animation
+            void modal.offsetWidth;
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        }
+
+        function closeModal(event, modalId) {
+            // Close if clicking outside the modal content
+            if(event.target.id === modalId) {
+                closeModalForce(modalId);
+            }
+        }
+
+        function closeModalForce(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.remove('active');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                document.body.style.overflow = '';
+            }, 200); // Wait for transition
+        }
+
+        // Close modals on Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const activeModals = document.querySelectorAll('.modal-overlay.active');
+                activeModals.forEach(modal => {
+                    closeModalForce(modal.id);
+                });
+            }
+        });
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            
+            const tabs = ['theorie', 'tools', 'simulation', 'quiz'];
+            tabs.forEach(id => {
+                const btn = document.getElementById('tab-' + id);
+                if (!btn) return;
+                if(id === tabId) {
+                    btn.classList.add('blease-btn-active');
+                    btn.classList.remove('bg-white');
+                } else {
+                    btn.classList.remove('blease-btn-active');
+                    btn.classList.add('bg-white');
+                }
+            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // Initialize Nav
+        document.getElementById('tab-theorie').classList.add('blease-btn-active');
+        document.getElementById('tab-theorie').classList.remove('bg-white');
+
+        // =====================================
+        // SLIDER LOGIC
+        // =====================================
+        const slider = document.getElementById('cidrSlider');
+        const bitContainer = document.getElementById('bitContainer');
+        
+        for(let i = 0; i < 32; i++) {
+            const box = document.createElement('div');
+            box.className = 'w-6 h-9 md:w-8 md:h-12 flex items-center justify-center text-[10px] md:text-base font-black rounded-lg bit-box border-4 border-black blease-shadow-sm bg-white';
+            if(i > 0 && i % 8 === 0) box.style.marginLeft = '12px';
+            bitContainer.appendChild(box);
+        }
+
+        function updateSliderVis() {
+            const cidr = parseInt(slider.value);
+            const boxes = bitContainer.children;
+            
+            const cidrText = document.getElementById('sliderCidrText');
+            if(cidrText) cidrText.textContent = '/' + cidr;
+            
+            const netBitsText = document.getElementById('sliderNetBits');
+            if(netBitsText) netBitsText.textContent = cidr;
+            
+            const hostBitsText = document.getElementById('sliderHostBits');
+            if(hostBitsText) hostBitsText.textContent = 32 - cidr;
+            
+            let hostsCount = cidr < 31 ? Math.pow(2, 32 - cidr) - 2 : (cidr === 31 ? 2 : 1);
+            const sliderHostsText = document.getElementById('sliderHosts');
+            if(sliderHostsText) sliderHostsText.textContent = hostsCount.toLocaleString('de-DE');
+
+            let maskNum = -1 << (32 - cidr);
+            const sliderMaskText = document.getElementById('sliderMaskText');
+            if(sliderMaskText) sliderMaskText.textContent = [(maskNum >>> 24) & 255, (maskNum >>> 16) & 255, (maskNum >>> 8) & 255, maskNum & 255].join('.');
+
+            for(let i = 0; i < 32; i++) {
+                if(i < cidr) {
+                    boxes[i].className = 'w-6 h-9 md:w-8 md:h-12 flex items-center justify-center text-[10px] md:text-base font-black rounded-lg bit-box border-4 border-black blease-shadow-sm bg-net text-white';
+                    boxes[i].textContent = '1';
+                } else {
+                    boxes[i].className = 'w-6 h-9 md:w-8 md:h-12 flex items-center justify-center text-[10px] md:text-base font-black rounded-lg bit-box border-4 border-black blease-shadow-sm bg-host text-white';
+                    boxes[i].textContent = '0';
+                }
+            }
+        }
+        slider.addEventListener('input', updateSliderVis);
+        updateSliderVis();
+
+        // =====================================
+        // CALCULATOR / TRAINER LOGIC
+        // =====================================
+        function ip2long(ip) { return ip.split('.').reduce((acc, octet) => (acc << 8) + parseInt(octet, 10), 0) >>> 0; }
+        function long2ip(long) { return [(long >>> 24) & 255, (long >>> 16) & 255, (long >>> 8) & 255, long & 255].join('.'); }
+
+        function formatBin(longValue, cidr, type) {
+            let binStr = (longValue >>> 0).toString(2).padStart(32, '0');
+            let res = '';
+            for (let i = 0; i < 32; i++) {
+                if (i > 0 && i % 8 === 0) res += '<span class="mx-1 opacity-50">|</span>';
+                let bit = binStr[i];
+                let colorClass = 'text-white';
+                if(type==='ip') colorClass = i < cidr ? 'text-net' : 'text-host';
+                else if(type==='mask') colorClass = i < cidr ? 'text-mask' : 'text-slate-500';
+                else if(type==='net') colorClass = i < cidr ? 'text-net' : 'text-slate-500';
+                else if(type==='inv') colorClass = i < cidr ? 'text-slate-500' : 'text-accent';
+                else if(type==='bcast') colorClass = i < cidr ? 'text-net' : 'text-accent';
+                res += `<span class="${colorClass}">${bit}</span>`;
+            }
+            return res;
+        }
+
+        function calculateSubnet(targetIp = null, targetCidr = null) {
+            const ipStr = targetIp || document.getElementById('calcIp').value;
+            const cidr = targetCidr !== null ? targetCidr : parseInt(document.getElementById('calcCidr').value);
+            
+            if(!/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(ipStr)) return alert('IP ungültig');
+            
+            const ipLong = ip2long(ipStr);
+            const maskLong = cidr === 0 ? 0 : (-1 << (32 - cidr)) >>> 0;
+            const netLong = (ipLong & maskLong) >>> 0;
+            const broadcastLong = (netLong | ~maskLong) >>> 0;
+
+            document.getElementById('resMask').textContent = long2ip(maskLong);
+            document.getElementById('resNet').textContent = long2ip(netLong);
+            document.getElementById('resBroadcast').textContent = long2ip(broadcastLong);
+            document.getElementById('resRange').textContent = `${long2ip(netLong+1)} - ${long2ip(broadcastLong-1)}`;
+            document.getElementById('resCount').textContent = (Math.pow(2, 32-cidr)-2).toLocaleString('de-DE');
+
+            document.getElementById('visIpDec').textContent = ipStr;
+            document.getElementById('visIpBin').innerHTML = formatBin(ipLong, cidr, 'ip');
+            document.getElementById('visMaskDec').textContent = long2ip(maskLong);
+            document.getElementById('visMaskBin').innerHTML = formatBin(maskLong, cidr, 'mask');
+            document.getElementById('visNetDec').textContent = long2ip(netLong);
+            document.getElementById('visNetBin').innerHTML = formatBin(netLong, cidr, 'net');
+            document.getElementById('visInvMaskBin').innerHTML = formatBin(~maskLong, cidr, 'inv');
+            document.getElementById('visBcastDec').textContent = long2ip(broadcastLong);
+            document.getElementById('visBcastBin').innerHTML = formatBin(broadcastLong, cidr, 'bcast');
+
+            document.getElementById('calcResults').classList.remove('hidden');
+        }
+
+        // --- NEW: Trainer Mode ---
+        let currentTrainTask = {};
+
+        function setToolMode(mode) {
+            const btnCalc = document.getElementById('btn-mode-calc');
+            const btnTrain = document.getElementById('btn-mode-train');
+            const calcCon = document.getElementById('calc-container');
+            const trainCon = document.getElementById('train-container');
+            
+            if(mode === 'calc') {
+                btnCalc.classList.add('blease-btn-active'); btnCalc.classList.remove('bg-white');
+                btnTrain.classList.remove('blease-btn-active'); btnTrain.classList.add('bg-white');
+                calcCon.classList.remove('hidden'); trainCon.classList.add('hidden');
+            } else {
+                btnTrain.classList.add('blease-btn-active'); btnTrain.classList.remove('bg-white');
+                btnCalc.classList.remove('blease-btn-active'); btnCalc.classList.add('bg-white');
+                calcCon.classList.add('hidden'); trainCon.classList.remove('hidden');
+                generateTrainingTask();
+            }
+        }
+
+        function generateTrainingTask() {
+            const oct3 = Math.floor(Math.random() * 200);
+            const oct4 = Math.floor(Math.random() * 250) + 1;
+            const cidr = Math.floor(Math.random() * 6) + 24; 
+            
+            const ipStr = `192.168.${oct3}.${oct4}`;
+            const ipLong = ip2long(ipStr);
+            const maskLong = (-1 << (32 - cidr)) >>> 0;
+            const netLong = (ipLong & maskLong) >>> 0;
+            const broadcastLong = (netLong | ~maskLong) >>> 0;
+
+            currentTrainTask = {
+                ip: ipStr,
+                cidr: cidr,
+                net: long2ip(netLong),
+                bcast: long2ip(broadcastLong)
+            };
+
+            document.getElementById('trainGivenIp').textContent = `${ipStr} /${cidr}`;
+            document.getElementById('trainInputNet').value = '';
+            document.getElementById('trainInputBcast').value = '';
+            
+            const fb = document.getElementById('trainFeedback');
+            fb.classList.add('hidden');
+            fb.innerHTML = '';
+        }
+
+        function checkTraining() {
+            const inNet = document.getElementById('trainInputNet').value.trim();
+            const inBcast = document.getElementById('trainInputBcast').value.trim();
+            const fb = document.getElementById('trainFeedback');
+            fb.classList.remove('hidden');
+
+            if(inNet === currentTrainTask.net && inBcast === currentTrainTask.bcast) {
+                fb.innerHTML = `
+                    <div class="bg-host text-white p-6 border-4 border-black rounded-2xl blease-shadow text-center">
+                        <i class="fas fa-check-circle text-5xl mb-4"></i>
+                        <h3 class="font-black text-3xl uppercase mb-2">Exzellent!</h3>
+                        <p class="font-bold text-lg">Beide Berechnungen sind absolut korrekt.</p>
+                    </div>`;
+            } else {
+                fb.innerHTML = `
+                    <div class="bg-accent text-white p-6 border-4 border-black rounded-2xl blease-shadow text-center mb-8">
+                        <i class="fas fa-skull-crossbones text-5xl mb-4"></i>
+                        <h3 class="font-black text-3xl uppercase mb-2">Da stimmt was nicht!</h3>
+                        <p class="font-bold text-lg mb-4">Richtig wäre:<br>Netz: ${currentTrainTask.net} <br>Broadcast: ${currentTrainTask.bcast}</p>
+                        <p class="text-sm">Schau dir unten die exakte visuelle Berechnung an, um deinen Fehler zu finden.</p>
+                    </div>`;
+                
+                document.getElementById('calc-container').classList.remove('hidden');
+                calculateSubnet(currentTrainTask.ip, currentTrainTask.cidr);
+                document.getElementById('visLogicBlock').scrollIntoView({behavior: "smooth"});
+            }
+        }
+
+        // =====================================
+        // SIMULATION LOGIC
+        // =====================================
+        const baseTopology = {
+            pc1: { name: 'PC 1', ip: '192.168.1.10', mask: '255.255.255.0', gw: '192.168.1.1', lan: 1, colorClass: 'active-transfer' },
+            pc2: { name: 'PC 2', ip: '192.168.1.11', mask: '255.255.255.0', gw: '192.168.1.1', lan: 1, colorClass: 'active-transfer' },
+            pc3: { name: 'PC 3', ip: '172.16.1.10', mask: '255.255.255.0', gw: '172.16.1.1', lan: 2, colorClass: 'active-transfer-lan2' },
+            pc4: { name: 'PC 4', ip: '172.16.1.11', mask: '255.255.255.0', gw: '172.16.1.1', lan: 2, colorClass: 'active-transfer-lan2' },
+            pc5: { name: 'PC 5', ip: '10.0.0.2', mask: '255.255.255.248', gw: '10.0.0.1', lan: 3, colorClass: 'active-transfer-lan3' },
+            pc6: { name: 'PC 6', ip: '10.0.0.3', mask: '255.255.255.248', gw: '10.0.0.1', lan: 3, colorClass: 'active-transfer-lan3' }
+        };
+        
+        let topology = JSON.parse(JSON.stringify(baseTopology));
+
+        function loadScenario(type) {
+            topology = JSON.parse(JSON.stringify(baseTopology));
+            
+            document.getElementById('node-pc1').classList.remove('bg-red-100', 'border-accent');
+            document.getElementById('lbl-pc1-name').classList.remove('text-accent');
+            document.getElementById('lbl-pc1-gw').textContent = 'GW: .1.1';
+            
+            document.getElementById('node-pc3').classList.remove('bg-red-100', 'border-accent');
+            document.getElementById('lbl-pc3-name').classList.remove('text-accent');
+            document.getElementById('lbl-pc3-mask').textContent = '/24';
+
+            document.getElementById('btn-scen-normal').classList.remove('blease-btn-active');
+            document.getElementById('btn-scen-gw').classList.remove('blease-btn-active');
+            document.getElementById('btn-scen-mask').classList.remove('blease-btn-active');
+
+            if (type === 'badGw') {
+                topology.pc1.gw = '192.168.2.1'; 
+                document.getElementById('node-pc1').classList.add('bg-red-100', 'border-accent');
+                document.getElementById('lbl-pc1-name').classList.add('text-accent');
+                document.getElementById('lbl-pc1-gw').textContent = 'GW: .2.1 (!)';
+                document.getElementById('btn-scen-gw').classList.add('blease-btn-active');
+                logTerminal(`<span class="text-primary font-black">> SZENARIO GELADEN:</span> PC 1 hat aus Versehen das Gateway 192.168.2.1 erhalten. Versuche einen Ping in ein anderes LAN.`);
+            } else if (type === 'badMask') {
+                topology.pc3.mask = '255.255.0.0'; 
+                document.getElementById('node-pc3').classList.add('bg-red-100', 'border-accent');
+                document.getElementById('lbl-pc3-name').classList.add('text-accent');
+                document.getElementById('lbl-pc3-mask').textContent = '/16 (!)';
+                document.getElementById('btn-scen-mask').classList.add('blease-btn-active');
+                logTerminal(`<span class="text-primary font-black">> SZENARIO GELADEN:</span> PC 3 hat versehentlich eine /16 Maske statt /24. Ping von PC 3 nach LAN 1.`);
+            } else {
+                document.getElementById('btn-scen-normal').classList.add('blease-btn-active');
+                logTerminal(`<span class="text-primary font-black">> SZENARIO GELADEN:</span> Normalbetrieb. Alles korrekt konfiguriert.`);
+            }
+        }
+
+        const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+        let isSimulating = false;
+
+        async function logTerminal(htmlString) {
+            const terminal = document.getElementById('sim-terminal');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry font-mono text-base font-bold mb-2 pb-2 border-b-4 border-dashed border-white/20 text-white';
+            entry.innerHTML = `<span class="text-primary font-black text-xl mr-2">></span> ${htmlString}`;
+            terminal.appendChild(entry);
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        function clearSim() {
+            document.querySelectorAll('.device').forEach(el => el.classList.remove('active-transfer', 'active-transfer-lan2', 'active-transfer-lan3', 'error-state'));
+            document.querySelectorAll('.sim-line').forEach(el => {
+                el.classList.remove('active', 'error');
+                el.setAttribute('stroke-dasharray', '8 8');
+            });
+        }
+
+        async function glowDevice(nodeId, colorClass, isError = false) {
+            const el = document.getElementById('node-' + nodeId);
+            if(el) {
+                if(isError) el.classList.add('error-state');
+                else el.classList.add(colorClass);
+            }
+            await sleep(600);
+        }
+        
+        async function glowLine(lineId, isError = false) {
+            const el = document.getElementById('line-' + lineId);
+            if(el) {
+                if(isError) el.classList.add('error');
+                else {
+                    el.classList.add('active');
+                    el.setAttribute('stroke-dasharray', '0');
+                }
+            }
+            await sleep(400);
+        }
+
+        async function runSimulation() {
+            if (isSimulating) return;
+            isSimulating = true;
+            clearSim();
+
+            const srcId = document.getElementById('sim-source').value;
+            const dstId = document.getElementById('sim-target').value;
+            const src = topology[srcId];
+            const dst = topology[dstId];
+
+            const terminal = document.getElementById('sim-terminal');
+            terminal.innerHTML = '';
+
+            if (srcId === dstId) {
+                await logTerminal(`<span class="text-accent uppercase">Abbruch:</span> Quell- und Zielgerät sind identisch.`);
+                isSimulating = false;
+                return;
+            }
+
+            await logTerminal(`[${src.name}] Erstelle ICMP Ping an Ziel-IP: <span class="bg-white text-black px-2 rounded">${dst.ip}</span>.`);
+            await glowDevice(srcId, src.colorClass);
+            await sleep(800);
+
+            const srcIpLong = ip2long(src.ip);
+            const dstIpLong = ip2long(dst.ip);
+            const maskLong = ip2long(src.mask);
+            const srcNetLong = (srcIpLong & maskLong) >>> 0;
+            const dstNetLong = (dstIpLong & maskLong) >>> 0;
+            
+            const thinksItsLocal = (srcNetLong === dstNetLong);
+
+            await logTerminal(`[${src.name}] <span class="text-primary">Subnetz-Prüfung:</span> Vergleicht Ziel-IP mit eigener Maske (${src.mask}).`);
+            await sleep(1000);
+
+            if (thinksItsLocal) {
+                await logTerminal(`[${src.name}] Ergebnis: Ziel-IP liegt scheinbar im <span class="text-host uppercase">gleichen lokalen Netz</span>.`);
+                await sleep(800);
+                await logTerminal(`[${src.name}] Sende ARP-Request in das LAN, um MAC-Adresse von ${dst.ip} zu finden.`);
+                await sleep(800);
+
+                await logTerminal(`[Switch ${src.lan}] Flutet ARP-Request an alle Ports...`);
+                await glowLine(`sw${src.lan}-${srcId}`);
+                await glowDevice(`sw${src.lan}`, src.colorClass);
+                
+                if(src.lan !== dst.lan) {
+                    await logTerminal(`[${src.name}] <span class="text-accent font-black uppercase">FEHLER:</span> Niemand im lokalen Netz antwortet auf den ARP-Request für ${dst.ip} (Gerät ist in Wahrheit in LAN ${dst.lan}). Ping Time Out.`);
+                    await glowDevice(srcId, 'dummy', true); 
+                } else {
+                    await glowLine(`sw${src.lan}-${dstId}`);
+                    await logTerminal(`[${dst.name}] <span class="text-host uppercase">Paket erfolgreich empfangen!</span> (Direkter Layer-2 Austausch)`);
+                    await glowDevice(dstId, dst.colorClass);
+                }
+                
+            } else {
+                await logTerminal(`[${src.name}] Ergebnis: Ziel-IP ist in einem <span class="text-accent uppercase">anderen</span> Netzwerk.`);
+                await sleep(1000);
+                await logTerminal(`[${src.name}] Sende Paket an das <strong>Default-Gateway</strong> (${src.gw}).`);
+                await sleep(800);
+
+                const expectedGw = src.lan === 1 ? '192.168.1.1' : (src.lan === 2 ? '172.16.1.1' : '10.0.0.1');
+                if(src.gw !== expectedGw) {
+                    await glowLine(`sw${src.lan}-${srcId}`);
+                    await glowDevice(`sw${src.lan}`, src.colorClass);
+                    await logTerminal(`[Switch ${src.lan}] Sucht Gateway ${src.gw} ...`);
+                    await sleep(1000);
+                    await logTerminal(`[${src.name}] <span class="text-accent font-black uppercase">FEHLER:</span> Gateway ${src.gw} ist nicht erreichbar! Paket kann das LAN nicht verlassen. Ping Time Out.`);
+                    await glowLine(`r1-sw${src.lan}`, true); 
+                    await glowDevice(srcId, 'dummy', true);
+                } else {
+                    await glowLine(`sw${src.lan}-${srcId}`);
+                    await glowDevice(`sw${src.lan}`, src.colorClass);
+                    
+                    await logTerminal(`[Switch ${src.lan}] Leitet Paket an den Router weiter.`);
+                    await glowLine(`r1-sw${src.lan}`);
+                    await glowDevice('router', src.colorClass);
+                    await sleep(800);
+
+                    await logTerminal(`[Router] Empfängt Paket. Prüft Routing-Tabelle für Ziel-IP ${dst.ip}...`);
+                    await sleep(1000);
+                    await logTerminal(`[Router] <span class="text-host">Treffer!</span> Ziel-Netz ist direkt verbunden an Schnittstelle für LAN ${dst.lan}.`);
+                    await sleep(800);
+
+                    document.getElementById('node-router').classList.remove(src.colorClass);
+                    document.getElementById('node-router').classList.add(dst.colorClass);
+                    
+                    await logTerminal(`[Router] Leitet Paket an LAN ${dst.lan} weiter.`);
+                    await glowLine(`r1-sw${dst.lan}`);
+                    await glowDevice(`sw${dst.lan}`, dst.colorClass);
+                    await glowLine(`sw${dst.lan}-${dstId}`);
+
+                    await logTerminal(`[${dst.name}] <span class="text-host uppercase">Ping erfolgreich empfangen!</span>`);
+                    await glowDevice(dstId, dst.colorClass);
+                }
+            }
+
+            await sleep(800);
+            await logTerminal(`<span class="text-slate-500">--- SIMULATION ABGESCHLOSSEN ---</span>`);
+            isSimulating = false;
+        }
+
+        // =====================================
+        // QUIZ LOGIC
+        // =====================================
+        const quizData = [
+            {
+                q: "Fallbeispiel (LAN 3): Du planst ein neues Netzwerk für exakt 2 PCs und 1 Router-Interface (insgesamt 3 benötigte IP-Adressen). Welche Subnetzmaske wählst du, um möglichst ressourcenschonend zu arbeiten?",
+                options: [
+                    "255.255.255.0 (/24)",
+                    "255.255.255.248 (/29)",
+                    "255.255.255.252 (/30)",
+                    "255.0.0.0 (/8)"
+                ],
+                correct: 1,
+                exp: "Ein /29 Subnetz bietet genau 6 vergebare Host-IPs (2^3 - 2 = 6). Das reicht exakt für die 3 Geräte und verschwendet im Gegensatz zu einem großen /24 Netz keine wertvollen Adressen."
+            },
+            {
+                q: "Theorie: Warum dürfen in einem Standard /24-Netzwerk die erste Host-Endung (.0) und die Letzte (.255) keinem Endgerät (PC) zugewiesen werden?",
+                options: [
+                    "Weil der DHCP-Server diese IPs für sich selbst reserviert.",
+                    "Sie dürfen vergeben werden, es ist nur eine Empfehlung sie freizulassen.",
+                    "Die .0 repräsentiert das gesamte Netzwerk (Netz-ID), die .255 ist die Broadcast-Adresse für Rundrufe an alle.",
+                    "Weil Router nur IP-Endungen von 1 bis 100 verwalten können."
+                ],
+                correct: 2,
+                exp: "Die Netzadresse ist für Routing-Tabellen reserviert (Identität der 'Straße'). Die Broadcast-Adresse ist hardwareseitig so definiert, dass der Switch Pakete an alle seine Ports weiterleitet."
+            },
+            {
+                q: "Rechenaufgabe: Welche der folgenden Adressen ist eine GÜLTIGE Host-Adresse im Netzwerk 17.128.0.0/9?",
+                options: [
+                    "17.128.0.0",
+                    "17.129.0.0",
+                    "17.255.255.255",
+                    "17.0.0.0"
+                ],
+                correct: 1,
+                exp: "17.128.0.0 ist die erste IP (Netzadresse). 17.255.255.255 ist der Broadcast in diesem /9 Block. 17.0.0.0 gehört zum vorherigen Netz. Nur die 17.129.0.0 liegt sicher im vergebenen Host-Bereich."
+            },
+            {
+                q: "Fehlersuche im Netzwerkplan: Ein neuer Mitarbeiter hat PC2 die IP 192.168.1.1 zugewiesen. Dies ist jedoch bereits die feste IP des Default-Gateways (Router). Was ist die Folge?",
+                options: [
+                    "Der Router ändert seine IP automatisch (Auto-Sensing).",
+                    "Es kommt zu einem IP-Adresskonflikt. Pakete können im LAN nicht mehr zuverlässig zugestellt werden.",
+                    "Das Netzwerk wird schneller, da PC2 nun direkte Router-Rechte hat.",
+                    "Der Switch schickt alle Pakete einfach an beide Geräte als Kopie."
+                ],
+                correct: 1,
+                exp: "Eine IP-Adresse muss im lokalen Netzwerk (LAN) absolut eindeutig sein. Bei einer Doppelvergabe weiß der Switch/Router nicht mehr, an welche Hardware (MAC-Adresse) er das Paket final zustellen soll."
+            },
+            {
+                q: "Netzwerkanalyse (Ping): Du sendest einen Ping von LAN 1 (192.168.x.x) an einen PC in LAN 2 (172.16.x.x). Welche Ziel-MAC-Adresse steht in dem Frame, der deinen PC verlässt?",
+                options: [
+                    "Die MAC-Adresse des Ziel-PCs in LAN 2.",
+                    "Die MAC-Adresse des eigenen Switches.",
+                    "Eine generische Broadcast-MAC-Adresse (FF:FF:FF:FF:FF:FF).",
+                    "Die MAC-Adresse des eigenen Default-Gateways (Router-Interface in LAN 1)."
+                ],
+                correct: 3,
+                exp: "Richtig! MAC-Adressen existieren nur im eigenen lokalen Netz (Layer 2). Wenn die Ziel-IP in einem fremden Netz liegt, adressiert dein PC den Rahmen physisch zwingend an den Router, damit dieser das Paket übernimmt und weiterleitet."
+            }
+        ];
+
+        let currentQ = 0;
+        let quizScore = 0;
+
+        function initQuiz() {
+            currentQ = 0;
+            quizScore = 0;
+            document.getElementById('quiz-container').classList.remove('hidden');
+            document.getElementById('quiz-results').classList.add('hidden');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const qData = quizData[currentQ];
+            document.getElementById('quiz-progress').textContent = `Frage ${currentQ + 1} / ${quizData.length}`;
+            document.getElementById('quiz-score-badge').textContent = `Score: ${quizScore}`;
+            document.getElementById('quiz-question-text').textContent = qData.q;
+            
+            const optionsContainer = document.getElementById('quiz-options');
+            optionsContainer.innerHTML = '';
+            
+            qData.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'w-full text-left p-6 rounded-2xl border-4 border-black font-black text-xl bg-white hover:bg-primary blease-shadow-sm transition-all active:translate-y-1 active:shadow-none cursor-pointer';
+                btn.textContent = opt;
+                btn.onclick = () => selectOption(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+
+            document.getElementById('quiz-feedback').classList.add('hidden');
+        }
+
+        function selectOption(index, btnElem) {
+            const qData = quizData[currentQ];
+            const isCorrect = (index === qData.correct);
+            
+            const allBtns = document.getElementById('quiz-options').children;
+            for(let b of allBtns) {
+                b.onclick = null;
+                b.classList.remove('hover:bg-primary', 'cursor-pointer', 'blease-shadow-sm', 'active:translate-y-1');
+                b.classList.add('opacity-50', 'cursor-default');
+            }
+
+            btnElem.classList.remove('opacity-50');
+            if (isCorrect) {
+                btnElem.classList.add('bg-host', 'text-white', 'opacity-100');
+                quizScore++;
+                document.getElementById('quiz-score-badge').textContent = `Score: ${quizScore}`;
+                showFeedback(true, qData.exp);
+            } else {
+                btnElem.classList.add('bg-accent', 'text-white', 'opacity-100');
+                allBtns[qData.correct].classList.remove('opacity-50');
+                allBtns[qData.correct].classList.add('bg-host', 'text-white', 'opacity-100');
+                showFeedback(false, qData.exp);
+            }
+        }
+
+        function showFeedback(isCorrect, explanation) {
+            const fbArea = document.getElementById('quiz-feedback');
+            const fbIcon = document.getElementById('quiz-feedback-icon');
+            const fbTitle = document.getElementById('quiz-feedback-title');
+            const fbText = document.getElementById('quiz-feedback-text');
+
+            fbArea.classList.remove('hidden');
+            
+            if(isCorrect) {
+                fbIcon.innerHTML = '<i class="fas fa-check-circle text-host"></i>';
+                fbTitle.textContent = "KORREKT!";
+                fbTitle.className = "font-black text-4xl mb-4 uppercase text-host";
+            } else {
+                fbIcon.innerHTML = '<i class="fas fa-skull-crossbones text-accent"></i>';
+                fbTitle.textContent = "LEIDER FALSCH!";
+                fbTitle.className = "font-black text-4xl mb-4 uppercase text-accent";
+            }
+
+            fbText.innerHTML = `<strong>Warum?</strong> ${explanation}`;
+        }
+
+        function nextQuestion() {
+            currentQ++;
+            if(currentQ < quizData.length) {
+                renderQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('quiz-container').classList.add('hidden');
+            const resScreen = document.getElementById('quiz-results');
+            resScreen.classList.remove('hidden');
+            
+            document.getElementById('quiz-final-score').textContent = `${quizScore} / ${quizData.length}`;
+            
+            const msgElem = document.getElementById('quiz-result-message');
+            if(quizScore === quizData.length) {
+                msgElem.innerHTML = "Perfekt! <i class='fas fa-star text-primary ml-2'></i> Du bist ein echter IP-Adressierungs-Experte und bereit für die Prüfung.";
+            } else if (quizScore >= Math.ceil(quizData.length / 2)) {
+                msgElem.innerHTML = "Gut gemacht! Die Grundlagen sitzen bereits sehr ordentlich.";
+            } else {
+                msgElem.innerHTML = "Das war knifflig. Wirf am besten noch einmal einen detaillierten Blick auf die Theoriemodule und den interaktiven Rechner.";
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            initQuiz();
+            generateTrainingTask(); 
+        });
+    </script>
+</body>
+</html>
