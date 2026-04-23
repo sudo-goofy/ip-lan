@@ -283,12 +283,12 @@
                     <h2 class="text-3xl font-black mb-6 uppercase mt-4">Die Subnetzmaske</h2>
                     <p class="font-bold text-base mb-6 text-blue-100">Computer sehen keine Punkte in der IP, nur 32 Nullen & Einsen. Woher weiß der PC, wo der Netz-Teil endet? Die Maske ist die Schablone!</p>
                     
-                    <div class="bg-black text-white p-6 blease-border rounded-xl font-mono text-sm mb-8 relative overflow-hidden blease-shadow-sm">
-                        <div class="absolute left-0 top-0 bottom-0 w-[72%] border-r-4 border-dashed border-white/50 bg-white/10"></div>
-                        <div class="relative z-10 space-y-3 font-bold text-base md:text-lg">
-                            <div class="flex justify-between"><span>IP:</span> <span>11000000.10101000.00000001.<span class="text-host">00001010</span></span></div>
-                            <div class="flex justify-between text-mask border-b-4 border-white pb-3"><span>Mask:</span> <span>11111111.11111111.11111111.<span class="text-slate-500">00000000</span></span></div>
-                            <div class="flex justify-between text-primary"><span>Netz:</span> <span>11000000.10101000.00000001.<span class="text-slate-500">00000000</span></span></div>
+                    <div class="bg-black text-white p-4 md:p-6 blease-border rounded-xl font-mono text-xs md:text-sm mb-8 relative overflow-x-auto blease-shadow-sm">
+                        <div class="absolute left-0 top-0 bottom-0 w-[72%] border-r-4 border-dashed border-white/50 bg-white/10 hidden md:block"></div>
+                        <div class="relative z-10 space-y-3 font-bold text-sm md:text-lg min-w-max">
+                            <div class="flex justify-between gap-4"><span>IP:</span> <span>11000000.10101000.00000001.<span class="text-host">00001010</span></span></div>
+                            <div class="flex justify-between gap-4 text-mask border-b-4 border-white pb-3"><span>Mask:</span> <span>11111111.11111111.11111111.<span class="text-slate-500">00000000</span></span></div>
+                            <div class="flex justify-between gap-4 text-primary"><span>Netz:</span> <span>11000000.10101000.00000001.<span class="text-slate-500">00000000</span></span></div>
                         </div>
                     </div>
                     
@@ -406,12 +406,12 @@
                 <p class="text-xl font-bold text-black max-w-2xl mx-auto bg-white p-4 blease-border rounded-xl blease-shadow-sm">Rechnen lassen oder selbst rechnen? Wähle deinen Modus.</p>
             </div>
 
-            <div class="max-w-4xl mx-auto">
+            <div class="max-w-6xl mx-auto">
                 
                 <!-- Toggle Mode -->
-                <div class="flex justify-center mb-8 gap-4">
-                    <button id="btn-mode-calc" onclick="setToolMode('calc')" class="blease-btn blease-btn-active bg-white text-black font-black text-lg py-3 px-8 rounded-xl uppercase">🖩 Rechner-Modus</button>
-                    <button id="btn-mode-train" onclick="setToolMode('train')" class="blease-btn bg-white text-black font-black text-lg py-3 px-8 rounded-xl uppercase">🏋️ Trainings-Modus</button>
+                <div class="flex flex-col md:flex-row justify-center items-center mb-8 gap-4 w-full">
+                    <button id="btn-mode-calc" onclick="setToolMode('calc')" class="blease-btn blease-btn-active bg-white text-black font-black text-lg py-3 px-8 rounded-xl uppercase w-full md:w-auto">🖩 Rechner-Modus</button>
+                    <button id="btn-mode-train" onclick="setToolMode('train')" class="blease-btn bg-white text-black font-black text-lg py-3 px-8 rounded-xl uppercase w-full md:w-auto">🏋️ Trainings-Modus</button>
                 </div>
 
                 <div class="blease-card p-8 md:p-12 mb-12 bg-white" id="calc-container">
@@ -462,7 +462,7 @@
                                 <div class="flex items-center"><div class="w-32">IP</div><div class="w-40 text-right mr-8" id="visIpDec"></div><div id="visIpBin" class="tracking-widest"></div></div>
                                 <div class="flex items-center border-b-4 border-dashed border-white/30 pb-4"><div class="w-32 text-mask">Maske</div><div class="w-40 text-right mr-8 text-mask" id="visMaskDec"></div><div id="visMaskBin" class="tracking-widest relative"><div class="absolute -bottom-6 right-full mr-4 font-black text-2xl text-primary">&amp;</div></div></div>
                                 <div class="flex items-center pt-2"><div class="w-32 text-net">Netz</div><div class="w-40 text-right mr-8 text-net" id="visNetDec"></div><div id="visNetBin" class="tracking-widest"></div></div>
-                                <div class="flex items-center text-slate-500 text-sm mt-8"><div class="w-32">Inv. Maske</div><div class="w-40 mr-8"></div><div id="visInvMaskBin" class="tracking-widest relative"><div class="absolute -bottom-6 right-full mr-4 font-black text-2xl text-primary">|</div></div></div>
+                                <div class="flex items-center text-slate-500 mt-8"><div class="w-32">Inv. Maske</div><div class="w-40 mr-8"></div><div id="visInvMaskBin" class="tracking-widest relative"><div class="absolute -bottom-6 right-full mr-4 font-black text-2xl text-primary">|</div></div></div>
                                 <div class="flex items-center border-t-4 border-dashed border-white/30 pt-4"><div class="w-32 text-accent">Broadcast</div><div class="w-40 text-right mr-8 text-accent" id="visBcastDec"></div><div id="visBcastBin" class="tracking-widest"></div></div>
                             </div>
                         </div>
@@ -519,7 +519,7 @@
                 <p class="text-xl font-bold text-black max-w-3xl mx-auto bg-white p-4 blease-border rounded-xl blease-shadow-sm">Sende ein Paket und beobachte das Routing. Nutze die <strong>Hacker-Szenarien</strong>, um Fehler im Netz zu provozieren.</p>
             </div>
 
-            <div class="blease-card p-8 md:p-12 mb-16 bg-white overflow-hidden">
+            <div class="blease-card p-4 md:p-12 mb-16 bg-white overflow-x-auto relative">
                 
                 <!-- Sandbox Fehlerszenarien -->
                 <div class="mb-10 p-6 bg-slate-100 border-4 border-black rounded-2xl blease-shadow-sm">
@@ -574,7 +574,7 @@
                 </div>
 
                 <!-- Topology Map -->
-                <div class="relative max-w-4xl mx-auto py-8">
+                <div class="relative max-w-4xl min-w-[600px] mx-auto py-8">
                     <!-- SVG Connections (Background) -->
                     <svg class="absolute inset-0 w-full h-full pointer-events-none" style="z-index: 0;">
                         <!-- Thick default lines -->
