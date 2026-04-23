@@ -217,11 +217,14 @@
                     <button onclick="switchTab('tools')" id="tab-tools" class="blease-btn px-5 py-2 rounded-xl text-sm font-black uppercase bg-white text-black whitespace-nowrap flex items-center">
                         <span class="w-6 h-6 border-2 border-black rounded-full flex items-center justify-center mr-2 text-xs">2</span> Rechner / Trainer
                     </button>
+                    <button onclick="switchTab('subnetting')" id="tab-subnetting" class="blease-btn px-5 py-2 rounded-xl text-sm font-black uppercase bg-white text-black whitespace-nowrap flex items-center">
+                        <span class="w-6 h-6 border-2 border-black rounded-full flex items-center justify-center mr-2 text-xs">3</span> Subnetting
+                    </button>
                     <button onclick="switchTab('simulation')" id="tab-simulation" class="blease-btn px-5 py-2 rounded-xl text-sm font-black uppercase bg-white text-black whitespace-nowrap flex items-center">
-                        <span class="w-6 h-6 border-2 border-black rounded-full flex items-center justify-center mr-2 text-xs">3</span> Simulator
+                        <span class="w-6 h-6 border-2 border-black rounded-full flex items-center justify-center mr-2 text-xs">4</span> Simulator
                     </button>
                     <button onclick="switchTab('quiz')" id="tab-quiz" class="blease-btn px-5 py-2 rounded-xl text-sm font-black uppercase bg-white text-black whitespace-nowrap flex items-center">
-                        <span class="w-6 h-6 border-2 border-black rounded-full flex items-center justify-center mr-2 text-xs">4</span> Quiz
+                        <span class="w-6 h-6 border-2 border-black rounded-full flex items-center justify-center mr-2 text-xs">5</span> Quiz
                     </button>
                 </div>
             </div>
@@ -503,6 +506,79 @@
 
             <!-- CTA NEXT -->
             <div class="text-center">
+                <button onclick="switchTab('subnetting')" class="blease-btn bg-mask text-white text-2xl font-black py-6 px-12 rounded-2xl inline-flex items-center uppercase tracking-tighter hover:bg-purple-600">
+                    Weiter zum Subnetting <i class="fas fa-chart-pie ml-4 text-3xl"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- SCHRITT 3: SUBNETTING                      -->
+        <!-- ========================================== -->
+        <section id="subnetting" class="tab-content">
+            <div class="text-center mb-12">
+                <span class="inline-block bg-primary blease-border px-6 py-2 rounded-full text-sm font-black uppercase tracking-widest mb-6 blease-shadow-sm">Schritt 3: Subnetting</span>
+                <h1 class="text-5xl md:text-7xl font-black text-black mb-6 uppercase tracking-tighter">Teile & Herrsche</h1>
+                <p class="text-xl font-bold text-black max-w-2xl mx-auto bg-white p-4 blease-border rounded-xl blease-shadow-sm">Zerteile ein großes Netzwerk in mehrere, voneinander abgeschottete kleine Subnetze.</p>
+            </div>
+
+            <div class="max-w-5xl mx-auto">
+                <div class="blease-card p-8 md:p-12 mb-12 bg-white">
+                    <h2 class="text-3xl font-black uppercase mb-6"><i class="fas fa-cut text-mask mr-3"></i> Subnetz-Generator</h2>
+                    <p class="text-lg font-bold mb-8 text-gray-700">Gib dein Basis-Netzwerk an und wähle die neue, restriktivere Subnetzmaske, um den IP-Raum aufzuteilen.</p>
+                    
+                    <div class="flex flex-col md:flex-row gap-6 items-end mb-12">
+                        <div class="flex-1 w-full">
+                            <label class="block text-sm font-black uppercase mb-2">Basis-Netz IP</label>
+                            <input type="text" id="subBaseIp" value="192.168.1.0" class="w-full bg-white border-4 border-black rounded-xl px-6 py-4 font-mono text-xl font-bold focus:bg-purple-50 outline-none blease-shadow-sm transition-colors">
+                        </div>
+                        <div class="w-full md:w-32">
+                            <label class="block text-sm font-black uppercase mb-2 text-net text-center">Basis /</label>
+                            <input type="number" id="subBaseCidr" value="24" min="0" max="31" class="w-full bg-white border-4 border-black rounded-xl px-4 py-4 font-mono text-xl font-bold focus:bg-purple-50 outline-none blease-shadow-sm transition-colors text-center text-net">
+                        </div>
+                        <div class="hidden md:flex pb-4 text-3xl font-black text-slate-400"><i class="fas fa-arrow-right"></i></div>
+                        <div class="w-full md:w-32">
+                            <label class="block text-sm font-black uppercase mb-2 text-mask text-center">NEU /</label>
+                            <input type="number" id="subNewCidr" value="26" min="1" max="32" class="w-full bg-white border-4 border-black rounded-xl px-4 py-4 font-mono text-xl text-mask font-black focus:bg-purple-50 outline-none blease-shadow-sm transition-colors text-center">
+                        </div>
+                        <div class="w-full md:w-auto mt-4 md:mt-0">
+                            <button onclick="generateSubnets()" class="blease-btn w-full md:w-auto bg-black text-white font-black text-xl py-4 px-10 rounded-xl uppercase hover:bg-gray-800">Generieren</button>
+                        </div>
+                    </div>
+
+                    <div id="subnetResults" class="hidden">
+                        <div class="grid grid-cols-2 gap-6 mb-8">
+                            <div class="p-6 bg-mask/10 border-4 border-mask rounded-2xl blease-shadow-sm text-center">
+                                <span class="text-sm font-black uppercase block mb-2 text-mask">Anzahl der neuen Subnetze</span>
+                                <span class="font-black text-4xl block text-mask" id="subResultCount">-</span>
+                            </div>
+                            <div class="p-6 bg-host/10 border-4 border-host rounded-2xl blease-shadow-sm text-center">
+                                <span class="text-sm font-black uppercase block mb-2 text-host">Host-IPs pro Subnetz</span>
+                                <span class="font-black text-4xl block text-host" id="subResultHosts">-</span>
+                            </div>
+                        </div>
+
+                        <div class="mt-8 bg-black text-white blease-border rounded-3xl p-6 md:p-10 shadow-[8px_8px_0_0_#a855f7] overflow-x-auto">
+                            <table class="w-full text-left border-collapse min-w-max">
+                                <thead class="uppercase text-sm font-black border-b-4 border-dashed border-white/30">
+                                    <tr>
+                                        <th class="p-4 w-16 text-center text-slate-400">Nr.</th>
+                                        <th class="p-4 text-net">Netz-Adresse (ID)</th>
+                                        <th class="p-4 text-host">Vergebbarer Host-Bereich</th>
+                                        <th class="p-4 text-accent">Broadcast</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="subnetTableBody" class="text-base text-white">
+                                    <!-- JS injects rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CTA NEXT -->
+            <div class="text-center">
                 <button onclick="switchTab('simulation')" class="blease-btn bg-host text-black text-2xl font-black py-6 px-12 rounded-2xl inline-flex items-center uppercase tracking-tighter hover:bg-green-400">
                     Weiter zur Simulation <i class="fas fa-satellite-dish ml-4 text-3xl"></i>
                 </button>
@@ -510,11 +586,11 @@
         </section>
 
         <!-- ========================================== -->
-        <!-- SCHRITT 3: SIMULATION & SANDBOX            -->
+        <!-- SCHRITT 4: SIMULATION & SANDBOX            -->
         <!-- ========================================== -->
         <section id="simulation" class="tab-content">
             <div class="text-center mb-12">
-                <span class="inline-block bg-primary blease-border px-6 py-2 rounded-full text-sm font-black uppercase tracking-widest mb-6 blease-shadow-sm">Schritt 3: In Aktion</span>
+                <span class="inline-block bg-primary blease-border px-6 py-2 rounded-full text-sm font-black uppercase tracking-widest mb-6 blease-shadow-sm">Schritt 4: In Aktion</span>
                 <h1 class="text-5xl md:text-7xl font-black text-black mb-6 uppercase tracking-tighter leading-none">Netzwerk<br>Simulator</h1>
                 <p class="text-xl font-bold text-black max-w-3xl mx-auto bg-white p-4 blease-border rounded-xl blease-shadow-sm">Sende ein Paket und beobachte das Routing. Nutze die <strong>Hacker-Szenarien</strong>, um Fehler im Netz zu provozieren.</p>
             </div>
@@ -709,11 +785,11 @@
         </section>
 
         <!-- ========================================== -->
-        <!-- SCHRITT 4: INTERAKTIVES QUIZ               -->
+        <!-- SCHRITT 5: INTERAKTIVES QUIZ               -->
         <!-- ========================================== -->
         <section id="quiz" class="tab-content">
             <div class="text-center mb-12">
-                <span class="inline-block bg-primary blease-border px-6 py-2 rounded-full text-sm font-black uppercase tracking-widest mb-6 blease-shadow-sm">Schritt 4: Prüfung</span>
+                <span class="inline-block bg-primary blease-border px-6 py-2 rounded-full text-sm font-black uppercase tracking-widest mb-6 blease-shadow-sm">Schritt 5: Prüfung</span>
                 <h1 class="text-5xl md:text-7xl font-black text-black mb-6 uppercase tracking-tighter leading-none">Netzwerk<br>Prüfung</h1>
                 <p class="text-xl font-bold text-black max-w-2xl mx-auto bg-white p-4 blease-border rounded-xl blease-shadow-sm">Teste dein Wissen aus den Arbeitsblättern 04b bis 04d.</p>
             </div>
@@ -855,7 +931,7 @@
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
             
-            const tabs = ['theorie', 'tools', 'simulation', 'quiz'];
+            const tabs = ['theorie', 'tools', 'subnetting', 'simulation', 'quiz'];
             tabs.forEach(id => {
                 const btn = document.getElementById('tab-' + id);
                 if (!btn) return;
@@ -1048,6 +1124,64 @@
                 calculateSubnet(currentTrainTask.ip, currentTrainTask.cidr);
                 document.getElementById('visLogicBlock').scrollIntoView({behavior: "smooth"});
             }
+        }
+
+        // =====================================
+        // SUBNETTING LOGIC
+        // =====================================
+        function subIp2long(ip) { return ip.split('.').reduce((acc, oct) => (acc << 8) + parseInt(oct, 10), 0) >>> 0; }
+        function subLong2ip(long) { return [(long >>> 24) & 255, (long >>> 16) & 255, (long >>> 8) & 255, long & 255].join('.'); }
+
+        function generateSubnets() {
+            const baseIpStr = document.getElementById('subBaseIp').value;
+            const baseCidr = parseInt(document.getElementById('subBaseCidr').value);
+            const newCidr = parseInt(document.getElementById('subNewCidr').value);
+            
+            if(!/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(baseIpStr)) return alert('Basis-IP ungültig');
+            if(newCidr <= baseCidr || newCidr > 32) {
+                return alert('Die neue Subnetzmaske (CIDR) muss zwingend strenger (also größer) als die Basismaske und maximal /32 sein.');
+            }
+            
+            const numSubnets = Math.pow(2, newCidr - baseCidr);
+            if (numSubnets > 2048) {
+                return alert('Sicherheitslimit Browser: Bitte maximal 2.048 Subnetze auf einmal generieren.');
+            }
+            
+            const tbody = document.getElementById('subnetTableBody');
+            tbody.innerHTML = '';
+            
+            const baseIpLong = subIp2long(baseIpStr);
+            const baseMaskLong = baseCidr === 0 ? 0 : (-1 << (32 - baseCidr)) >>> 0;
+            // Get standard network address of the base
+            let currentNetLong = (baseIpLong & baseMaskLong) >>> 0; 
+            
+            // How many IPs does each subnet have?
+            const step = Math.pow(2, 32 - newCidr);
+            
+            for(let i=0; i<numSubnets; i++) {
+                const net = currentNetLong;
+                const bcast = currentNetLong + step - 1;
+                const first = currentNetLong + 1;
+                const last = bcast - 1;
+                
+                const tr = document.createElement('tr');
+                tr.className = "border-b-4 border-dashed border-white/20 transition-colors font-bold hover:bg-white/10";
+                let hostRangeHtml = newCidr < 31 ? `${subLong2ip(first)} <span class="mx-2 text-slate-500">bis</span> ${subLong2ip(last)}` : '<span class="text-slate-500 font-bold">N/A</span>';
+                
+                tr.innerHTML = `
+                    <td class="p-4 text-center font-black text-slate-500">${i}</td>
+                    <td class="p-4 font-mono text-net">${subLong2ip(net)}</td>
+                    <td class="p-4 font-mono text-host">${hostRangeHtml}</td>
+                    <td class="p-4 font-mono text-accent">${subLong2ip(bcast)}</td>
+                `;
+                tbody.appendChild(tr);
+                
+                currentNetLong += step;
+            }
+            
+            document.getElementById('subResultCount').textContent = numSubnets.toLocaleString('de-DE');
+            document.getElementById('subResultHosts').textContent = (newCidr < 31 ? step - 2 : (newCidr===31 ? 2 : 1)).toLocaleString('de-DE');
+            document.getElementById('subnetResults').classList.remove('hidden');
         }
 
         // =====================================
