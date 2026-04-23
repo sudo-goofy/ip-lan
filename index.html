@@ -524,7 +524,12 @@
 
             <div class="max-w-5xl mx-auto">
                 <div class="blease-card p-8 md:p-12 mb-12 bg-white">
-                    <h2 class="text-3xl font-black uppercase mb-6"><i class="fas fa-cut text-mask mr-3"></i> Subnetz-Generator</h2>
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                        <h2 class="text-3xl font-black uppercase"><i class="fas fa-cut text-mask mr-3"></i> Subnetz-Generator</h2>
+                        <button onclick="openModal('modal-subnetting')" class="blease-btn bg-white text-mask border-mask font-black uppercase py-2 px-4 rounded-lg flex items-center text-sm hover:bg-purple-50">
+                            <i class="fas fa-question-circle mr-2"></i> Wie funktioniert das?
+                        </button>
+                    </div>
                     <p class="text-lg font-bold mb-8 text-gray-700">Gib dein Basis-Netzwerk an und wähle die neue, restriktivere Subnetzmaske, um den IP-Raum aufzuteilen.</p>
                     
                     <div class="flex flex-col md:flex-row gap-6 items-end mb-12">
@@ -547,28 +552,33 @@
                     </div>
 
                     <div id="subnetResults" class="hidden">
-                        <div class="grid grid-cols-2 gap-6 mb-8">
-                            <div class="p-6 bg-mask/10 border-4 border-mask rounded-2xl blease-shadow-sm text-center">
-                                <span class="text-sm font-black uppercase block mb-2 text-mask">Anzahl der neuen Subnetze</span>
-                                <span class="font-black text-4xl block text-mask" id="subResultCount">-</span>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8">
+                            <div class="p-6 bg-mask/10 border-4 border-mask rounded-2xl blease-shadow-sm text-center flex flex-col justify-center">
+                                <span class="text-sm font-black uppercase mb-1 text-mask">Neue Subnetze</span>
+                                <span class="font-black text-4xl block text-mask leading-none" id="subResultCount">-</span>
                             </div>
-                            <div class="p-6 bg-host/10 border-4 border-host rounded-2xl blease-shadow-sm text-center">
-                                <span class="text-sm font-black uppercase block mb-2 text-host">Host-IPs pro Subnetz</span>
-                                <span class="font-black text-4xl block text-host" id="subResultHosts">-</span>
+                            <div class="p-6 bg-accent/10 border-4 border-accent rounded-2xl blease-shadow-sm text-center flex flex-col justify-center">
+                                <span class="text-sm font-black uppercase mb-1 text-accent flex items-center justify-center"><i class="fas fa-frog mr-1"></i> Sprungweite</span>
+                                <span class="font-black text-4xl block text-accent leading-none" id="subResultStep">-</span>
+                            </div>
+                            <div class="p-6 bg-host/10 border-4 border-host rounded-2xl blease-shadow-sm text-center flex flex-col justify-center">
+                                <span class="text-sm font-black uppercase mb-1 text-host">Host-IPs / Netz</span>
+                                <span class="font-black text-4xl block text-host leading-none" id="subResultHosts">-</span>
                             </div>
                         </div>
 
-                        <div class="mt-8 bg-black text-white blease-border rounded-3xl p-6 md:p-10 shadow-[8px_8px_0_0_#a855f7] overflow-x-auto">
-                            <table class="w-full text-left border-collapse min-w-max">
-                                <thead class="uppercase text-sm font-black border-b-4 border-dashed border-white/30">
+                        <div class="mt-8 bg-black text-white blease-border rounded-3xl p-4 md:p-10 shadow-[8px_8px_0_0_#a855f7] overflow-hidden">
+                            <table class="w-full text-left border-collapse table-fixed text-xs md:text-sm">
+                                <thead class="uppercase font-black border-b-4 border-dashed border-white/30 hidden md:table-header-group">
                                     <tr>
-                                        <th class="p-4 w-16 text-center text-slate-400">Nr.</th>
-                                        <th class="p-4 text-net">Netz-Adresse (ID)</th>
-                                        <th class="p-4 text-host">Vergebbarer Host-Bereich</th>
-                                        <th class="p-4 text-accent">Broadcast</th>
+                                        <th class="p-2 md:p-4 w-12 text-center text-slate-400">Nr.</th>
+                                        <th class="p-2 md:p-4 text-net">Netz-Adresse (ID)</th>
+                                        <th class="p-2 md:p-4 text-host hidden lg:table-cell">Host-Bereich</th>
+                                        <th class="p-2 md:p-4 text-accent">Broadcast</th>
+                                        <th class="p-2 md:p-4 text-center text-slate-300">Bits</th>
                                     </tr>
                                 </thead>
-                                <tbody id="subnetTableBody" class="text-base text-white">
+                                <tbody id="subnetTableBody" class="text-white">
                                     <!-- JS injects rows -->
                                 </tbody>
                             </table>
@@ -889,6 +899,115 @@
         </div>
     </div>
 
+    <!-- Modal 3: Subnetting Guide -->
+    <div id="modal-subnetting" class="modal-overlay hidden fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4 backdrop-blur-sm" onclick="closeModal(event, 'modal-subnetting')">
+        <div class="modal-content bg-white blease-border rounded-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto blease-shadow" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-start mb-6 border-b-4 border-black pb-4">
+                <h2 class="text-3xl font-black uppercase text-mask"><i class="fas fa-cut mr-2"></i> Subnetting Verstehen</h2>
+                <button onclick="closeModalForce('modal-subnetting')" class="text-3xl hover:text-accent transition-colors"><i class="fas fa-times-circle"></i></button>
+            </div>
+            
+            <div class="space-y-6 text-lg font-bold text-gray-800">
+                <p>Ein gigantisches Netzwerk ist oft langsam (zu viele Broadcasts) und unsicher (jeder sieht jeden). Durch <strong>Subnetting</strong> zerteilen wir es in physikalisch isolierte Nachbarschaften (z.B. Verwaltung, IT, Gäste).</p>
+                
+                <div class="bg-purple-50 p-6 rounded-xl blease-border">
+                    <h3 class="text-xl font-black uppercase mb-2 text-mask">Die Logik: Bits vom Host "klauen"</h3>
+                    <p>Um neue Netze zu erschaffen, verschieben wir einfach die CIDR-Trennlinie nach rechts. Die Maske wird strenger, wir haben weniger Hosts, aber dafür mehr Netzwerke!</p>
+                    <ul class="list-disc pl-6 mt-4 space-y-2">
+                        <li><strong>Basis-Netz:</strong> 192.168.1.0/24 (Du hast 8 Host-Bits = 254 PCs)</li>
+                        <li><strong>Neues-Netz:</strong> Wir machen ein /26 Netz daraus.</li>
+                    </ul>
+                </div>
+
+                <div class="space-y-4">
+                    <h3 class="text-2xl font-black uppercase border-b-4 border-black inline-block pb-1">Die Berechnungen</h3>
+                    
+                    <div class="bg-black text-white p-4 rounded-xl blease-shadow-sm border-2 border-mask font-mono text-sm space-y-2">
+                        <div class="text-mask mb-1">// 1. Wie viele neue Netze entstehen?</div>
+                        <div>Differenz: 26 - 24 = <span class="text-primary font-black">2 Bits geklaut</span></div>
+                        <div>Formel: 2<sup class="text-xs">2</sup> = <span class="text-host font-black">4 neue Subnetze</span></div>
+                    </div>
+
+                    <div class="bg-black text-white p-4 rounded-xl blease-shadow-sm border-2 border-mask font-mono text-sm space-y-2">
+                        <div class="text-mask mb-1">// 2. Wie groß ist die "Sprungweite" (IPs pro Netz)?</div>
+                        <div>Restliche Bits: 32 - 26 = <span class="text-primary font-black">6 Bits übrig</span></div>
+                        <div>Formel (IPs): 2<sup class="text-xs">6</sup> = <span class="text-host font-black">Block von 64 IPs</span></div>
+                        <div class="text-gray-400 pl-4">Abzüglich Netz-ID & Broadcast = 62 echte Host-IPs</div>
+                    </div>
+                </div>
+
+                <!-- Visualisierung Sprungweite -->
+                <div class="bg-white border-4 border-black p-4 rounded-xl blease-shadow-sm relative overflow-hidden">
+                    <div class="absolute inset-0 opacity-[0.03] font-mono text-9xl flex items-center justify-center pointer-events-none -translate-y-4 translate-x-4">JUMP</div>
+                    <h3 class="text-xl font-black uppercase mb-4 text-black border-b-4 border-dashed border-gray-200 pb-2"><i class="fas fa-frog mr-2"></i> Die Sprungweite (= 64) anwenden</h3>
+                    <p class="text-sm text-gray-600 mb-6">Mit der errechneten Blockgröße (Sprungweite) zählen wir einfach vom Basis-Netz hoch, um die Startadressen (Netz-IDs) der neuen Subnetze zu finden:</p>
+                    
+                    <div class="space-y-3 font-mono text-sm">
+                        <!-- Step 0 -->
+                        <div class="flex items-center gap-4">
+                            <span class="bg-black text-white px-3 py-1 rounded font-black">#0</span>
+                            <span class="text-net font-bold">192.168.1.<span class="text-black bg-gray-200 px-1 rounded inline-block w-[3ch] text-center">0</span></span>
+                            <span class="text-gray-400 flex-1 border-b-2 border-dashed border-gray-300"></span>
+                        </div>
+                        
+                        <!-- +64 Jump -->
+                        <div class="my-2 pl-[116px]">
+                            <div class="w-[30px] flex justify-center">
+                                <div class="bg-white border-2 border-accent text-accent font-black px-1.5 py-0.5 rounded shadow-[2px_2px_0_0_currentColor] text-xs inline-flex items-center gap-1 -ml-1">
+                                    <i class="fas fa-arrow-down animate-bounce"></i>
+                                    <span>+64</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 1 -->
+                        <div class="flex items-center gap-4">
+                            <span class="bg-black text-white px-3 py-1 rounded font-black">#1</span>
+                            <span class="text-net font-bold">192.168.1.<span class="text-black bg-gray-200 px-1 rounded inline-block w-[3ch] text-center">64</span></span>
+                            <span class="text-gray-400 flex-1 border-b-2 border-dashed border-gray-300"></span>
+                        </div>
+
+                        <!-- +64 Jump -->
+                        <div class="my-2 pl-[116px]">
+                            <div class="w-[30px] flex justify-center">
+                                <div class="bg-white border-2 border-accent text-accent font-black px-1.5 py-0.5 rounded shadow-[2px_2px_0_0_currentColor] text-xs inline-flex items-center gap-1 -ml-1">
+                                    <i class="fas fa-arrow-down"></i>
+                                    <span>+64</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div class="flex items-center gap-4">
+                            <span class="bg-black text-white px-3 py-1 rounded font-black">#2</span>
+                            <span class="text-net font-bold">192.168.1.<span class="text-black bg-gray-200 px-1 rounded inline-block w-[3ch] text-center">128</span></span>
+                            <span class="text-gray-400 flex-1 border-b-2 border-dashed border-gray-300"></span>
+                        </div>
+
+                        <div class="text-center text-gray-400 font-black pt-2"><i class="fas fa-ellipsis-v"></i></div>
+                    </div>
+                </div>
+            </div>
+            <button onclick="closeModalForce('modal-subnetting')" class="blease-btn w-full mt-8 bg-black text-white py-4 rounded-xl font-black uppercase text-xl hover:bg-gray-800">Gecheckt!</button>
+        </div>
+    </div>
+
+    <!-- Modal 4: Bit Analysis -->
+    <div id="modal-bit-details" class="modal-overlay hidden fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4 backdrop-blur-sm" onclick="closeModal(event, 'modal-bit-details')">
+        <div class="modal-content bg-white blease-border rounded-2xl p-6 md:p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto blease-shadow" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-start mb-6 border-b-4 border-black pb-4">
+                <h2 id="modal-bit-title" class="text-2xl md:text-3xl font-black uppercase text-black"><i class="fas fa-microchip mr-2"></i> Subnetz Bit-Analyse</h2>
+                <button onclick="closeModalForce('modal-bit-details')" class="text-3xl hover:text-accent transition-colors"><i class="fas fa-times-circle"></i></button>
+            </div>
+            
+            <div id="modal-bit-content">
+                <!-- Dynamisch gefüllt -->
+            </div>
+            
+            <button onclick="closeModalForce('modal-bit-details')" class="blease-btn w-full mt-8 bg-black text-white py-4 rounded-xl font-black uppercase text-xl hover:bg-gray-800">Schließen</button>
+        </div>
+    </div>
+
     <!-- JS for Modals & Tabs -->
     <script>
         // Modal Logic
@@ -1165,23 +1284,146 @@
                 const last = bcast - 1;
                 
                 const tr = document.createElement('tr');
-                tr.className = "border-b-4 border-dashed border-white/20 transition-colors font-bold hover:bg-white/10";
+                // Remove the bottom border here if we're adding a jump row, to keep it clean.
+                tr.className = (i < numSubnets - 1) ? "border-none transition-colors font-bold hover:bg-white/10" : "border-b-4 border-dashed border-white/20 transition-colors font-bold hover:bg-white/10";
                 let hostRangeHtml = newCidr < 31 ? `${subLong2ip(first)} <span class="mx-2 text-slate-500">bis</span> ${subLong2ip(last)}` : '<span class="text-slate-500 font-bold">N/A</span>';
                 
+                let netIp = subLong2ip(net);
+                let netParts = netIp.split('.');
+                let netFirst3 = netParts.slice(0,3).join('.');
+                let netLast = netParts[3];
+
                 tr.innerHTML = `
-                    <td class="p-4 text-center font-black text-slate-500">${i}</td>
-                    <td class="p-4 font-mono text-net">${subLong2ip(net)}</td>
-                    <td class="p-4 font-mono text-host">${hostRangeHtml}</td>
-                    <td class="p-4 font-mono text-accent">${subLong2ip(bcast)}</td>
+                    <td class="px-1 py-4 md:p-4 text-center font-black text-slate-500 text-[10px] md:text-sm">${i}</td>
+                    <td class="px-1 py-4 md:p-4 font-mono text-net">
+                        <div class="flex items-center text-[10px] md:text-sm">
+                            <span class="w-[9ch] md:w-[11ch] text-right inline-block">${netFirst3}</span>
+                            <span class="text-slate-500 mx-[1px] md:mx-[2px]">.</span>
+                            <span class="w-[3ch] text-left inline-block">${netLast}</span>
+                        </div>
+                    </td>
+                    <td class="px-1 py-4 md:p-4 font-mono text-host hidden lg:table-cell text-[10px] md:text-sm">${hostRangeHtml}</td>
+                    <td class="px-1 py-4 md:p-4 font-mono text-accent text-[10px] md:text-sm">${subLong2ip(bcast)}</td>
+                    <td class="px-1 py-4 md:p-4 text-center">
+                        <button onclick="showSubnetBits(${i}, ${net}, ${bcast}, ${baseCidr}, ${newCidr})" class="bg-white text-black px-2 md:px-4 py-1.5 md:py-2 rounded-lg blease-border font-black text-[10px] md:text-xs uppercase hover:bg-mask hover:text-white transition-colors blease-shadow-sm">
+                            <span class="hidden md:inline"><i class="fas fa-search-plus mr-1"></i></span>Bits
+                        </button>
+                    </td>
                 `;
                 tbody.appendChild(tr);
+
+                if (i < numSubnets - 1) {
+                    const jumpTr = document.createElement('tr');
+                    jumpTr.className = "border-b-4 border-dashed border-white/20";
+                    jumpTr.innerHTML = `
+                        <td class="p-0"></td>
+                        <td class="p-0 font-mono">
+                            <div class="flex items-start pt-1 pb-3 text-[10px] md:text-sm">
+                                <span class="w-[9ch] md:w-[11ch] inline-block"></span>
+                                <span class="mx-[1px] md:mx-[2px] opacity-0">.</span>
+                                <div class="w-[3ch] inline-block">
+                                    <div class="flex justify-center -ml-2 mt-1">
+                                        <span class="bg-black border border-accent text-accent font-black text-[9px] md:text-[10px] px-1 md:px-1.5 py-0.5 rounded shadow-[1px_1px_0_0_currentColor] inline-flex items-center gap-0.5 md:gap-1">
+                                            <i class="fas fa-arrow-down animate-bounce text-[8px] md:text-[9px]"></i>
+                                            <span>+${step}</span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td colspan="3" class="p-0"></td>
+                    `;
+                    tbody.appendChild(jumpTr);
+                }
                 
                 currentNetLong += step;
             }
             
             document.getElementById('subResultCount').textContent = numSubnets.toLocaleString('de-DE');
+            document.getElementById('subResultStep').textContent = step.toLocaleString('de-DE');
             document.getElementById('subResultHosts').textContent = (newCidr < 31 ? step - 2 : (newCidr===31 ? 2 : 1)).toLocaleString('de-DE');
             document.getElementById('subnetResults').classList.remove('hidden');
+        }
+
+        function ipToBinaryHTML(ipLong, baseCidr, newCidr) {
+            let binStr = (ipLong >>> 0).toString(2).padStart(32, '0');
+            let blocks = [];
+            for (let i = 0; i < 4; i++) {
+                let octet = binStr.substring(i * 8, (i + 1) * 8);
+                let octetHTML = '';
+                for (let j = 0; j < 8; j++) {
+                    let bitIndex = i * 8 + j;
+                    let bit = octet[j];
+                    if (bitIndex < baseCidr) {
+                        octetHTML += `<span class="text-slate-400">${bit}</span>`; // Base net
+                    } else if (bitIndex < newCidr) {
+                        octetHTML += `<span class="text-mask font-black">${bit}</span>`; // Borrowed bits
+                    } else {
+                        octetHTML += `<span class="text-host font-bold">${bit}</span>`; // Host bits
+                    }
+                }
+                blocks.push(octetHTML);
+            }
+            return blocks.join('<span class="text-slate-500">.</span>');
+        }
+
+        function showSubnetBits(index, net, bcast, baseCidr, newCidr) {
+            const first = net + 1;
+            const last = bcast - 1;
+            
+            const html = `
+                <div class="mb-6 bg-black p-4 rounded-xl blease-border border-white/20 text-center relative overflow-hidden">
+                    <div class="absolute inset-0 opacity-10 font-mono text-8xl flex items-center justify-center -rotate-12 pointer-events-none text-white">10101</div>
+                    <div class="relative z-10 font-bold uppercase text-xs md:text-sm tracking-widest text-slate-300">
+                        Netz-ID (<span class="text-slate-400">Grau</span>) 
+                        <span class="mx-2">&bull;</span> Subnetz-Bits (<span class="text-mask">Lila</span>) 
+                        <span class="mx-2">&bull;</span> Host-Bits (<span class="text-host">Grün</span>)
+                    </div>
+                </div>
+                
+                <div class="space-y-4 font-mono text-sm sm:text-base">
+                    <!-- Net ID -->
+                    <div class="bg-black p-4 rounded-xl blease-border border-2 flex flex-col md:flex-row md:items-center justify-between gap-3 relative overflow-hidden group">
+                        <div class="absolute top-0 left-0 w-2 h-full bg-net"></div>
+                        <span class="font-black text-net w-32 uppercase text-xs tracking-widest pl-2 flex-shrink-0">Netz-ID</span>
+                        <span class="tracking-widest bg-gray-900 px-2 md:px-4 py-2 rounded-lg text-center md:text-left text-[10px] sm:text-xs md:text-sm font-mono break-all w-full">${ipToBinaryHTML(net, baseCidr, newCidr)}</span>
+                        <span class="font-black text-white text-right md:min-w-[100px] flex-shrink-0">${subLong2ip(net)}</span>
+                    </div>
+                    
+                    <!-- First Host -->
+                    <div class="bg-black p-4 rounded-xl blease-border border-2 border-white/20 flex flex-col md:flex-row md:items-center justify-between gap-3 relative">
+                        <div class="absolute top-0 left-0 w-2 h-full bg-host"></div>
+                        <span class="font-black text-host w-32 uppercase text-xs tracking-widest pl-2 flex-shrink-0">1. Host</span>
+                        <span class="tracking-widest bg-gray-900 px-2 md:px-4 py-2 rounded-lg text-center md:text-left text-[10px] sm:text-xs md:text-sm font-mono break-all w-full">${ipToBinaryHTML(first, baseCidr, newCidr)}</span>
+                        <span class="font-bold text-gray-300 text-right md:min-w-[100px] flex-shrink-0">${subLong2ip(first)}</span>
+                    </div>
+                    
+                    <!-- Spacer -->
+                    <div class="text-center text-slate-400 font-black py-1">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </div>
+                    
+                    <!-- Last Host -->
+                    <div class="bg-black p-4 rounded-xl blease-border border-2 border-white/20 flex flex-col md:flex-row md:items-center justify-between gap-3 relative">
+                        <div class="absolute top-0 left-0 w-2 h-full bg-host"></div>
+                        <span class="font-black text-host w-32 uppercase text-xs tracking-widest pl-2 flex-shrink-0">Letzter Host</span>
+                        <span class="tracking-widest bg-gray-900 px-2 md:px-4 py-2 rounded-lg text-center md:text-left text-[10px] sm:text-xs md:text-sm font-mono break-all w-full">${ipToBinaryHTML(last, baseCidr, newCidr)}</span>
+                        <span class="font-bold text-gray-300 text-right md:min-w-[100px] flex-shrink-0">${subLong2ip(last)}</span>
+                    </div>
+                    
+                    <!-- Broadcast -->
+                    <div class="bg-black p-4 rounded-xl blease-border border-2 flex flex-col md:flex-row md:items-center justify-between gap-3 relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-2 h-full bg-accent"></div>
+                        <span class="font-black text-accent w-32 uppercase text-xs tracking-widest pl-2 flex-shrink-0">Broadcast</span>
+                        <span class="tracking-widest bg-gray-900 px-2 md:px-4 py-2 rounded-lg text-center md:text-left text-[10px] sm:text-xs md:text-sm font-mono break-all w-full">${ipToBinaryHTML(bcast, baseCidr, newCidr)}</span>
+                        <span class="font-black text-white text-right md:min-w-[100px] flex-shrink-0">${subLong2ip(bcast)}</span>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('modal-bit-title').innerHTML = `<span class="text-slate-400">#${index}</span> Bit-Analyse`;
+            document.getElementById('modal-bit-content').innerHTML = html;
+            openModal('modal-bit-details');
         }
 
         // =====================================
