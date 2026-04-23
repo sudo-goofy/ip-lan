@@ -312,13 +312,13 @@
                 <div class="grid md:grid-cols-2 gap-8 mb-8">
                     <div class="bg-blue-50 p-6 md:p-8 blease-border rounded-2xl blease-shadow-sm relative overflow-hidden">
                         <div class="absolute -right-4 -bottom-4 opacity-10"><i class="fas fa-map-signs text-9xl"></i></div>
-                        <h3 class="text-2xl font-black text-net uppercase mb-3 relative z-10">1. Die Netz-Adresse</h3>
+                        <h3 class="text-2xl font-black text-net uppercase mb-3 relative z-10">1. Die Netz-Adresse (Erste IP im Subnetz)</h3>
                         <div class="font-mono font-bold bg-white px-3 py-1 blease-border rounded-md inline-block mb-4 relative z-10">Host-Bits sind alle <span class="text-accent">0</span></div>
                         <p class="text-sm font-bold relative z-10 text-gray-700">Identifiziert das gesamte Netzwerk als Ganzes für die Routing-Tabellen.</p>
                     </div>
                     <div class="bg-red-50 p-6 md:p-8 blease-border rounded-2xl blease-shadow-sm relative overflow-hidden">
                         <div class="absolute -right-4 -bottom-4 opacity-10"><i class="fas fa-bullhorn text-9xl"></i></div>
-                        <h3 class="text-2xl font-black text-accent uppercase mb-3 relative z-10">2. Die Broadcast-Adresse</h3>
+                        <h3 class="text-2xl font-black text-accent uppercase mb-3 relative z-10">2. Die Broadcast-Adresse (Letzte IP im Subnetz)</h3>
                         <div class="font-mono font-bold bg-white px-3 py-1 blease-border rounded-md inline-block mb-4 relative z-10">Host-Bits sind alle <span class="text-accent">1</span></div>
                         <p class="text-sm font-bold relative z-10 text-gray-700">Der "Megafon"-Kanal. Pakete an diese Adresse werden an <em>alle</em> Geräte im LAN gesendet.</p>
                     </div>
@@ -568,14 +568,14 @@
                         </div>
 
                         <div class="mt-8 bg-black text-white blease-border rounded-3xl p-4 md:p-10 shadow-[8px_8px_0_0_#a855f7] overflow-hidden">
-                            <table class="w-full text-left border-collapse table-fixed text-xs md:text-sm">
-                                <thead class="uppercase font-black border-b-4 border-dashed border-white/30 hidden md:table-header-group">
+                            <table class="w-full text-left border-collapse table-fixed text-sm md:text-lg tracking-wide">
+                                <thead class="uppercase font-black border-b-4 border-dashed border-white/30 hidden md:table-header-group text-sm md:text-lg">
                                     <tr>
-                                        <th class="p-2 md:p-4 w-12 text-center text-slate-400">Nr.</th>
+                                        <th class="p-2 md:p-4 w-12 md:w-16 text-center text-slate-400">Nr.</th>
                                         <th class="p-2 md:p-4 text-net">Netz-Adresse (ID)</th>
                                         <th class="p-2 md:p-4 text-host hidden lg:table-cell">Host-Bereich</th>
                                         <th class="p-2 md:p-4 text-accent">Broadcast</th>
-                                        <th class="p-2 md:p-4 text-center text-slate-300">Bits</th>
+                                        <th class="p-2 md:p-4 w-14 md:w-20 text-center text-slate-300" title="Bit-Analyse"><i class="fas fa-search-plus"></i></th>
                                     </tr>
                                 </thead>
                                 <tbody id="subnetTableBody" class="text-white">
@@ -885,14 +885,14 @@
                 <p>Was passiert wirklich, wenn man die Regeln ignoriert und diese IPs an Endgeräte vergibt?</p>
                 
                 <div class="bg-red-50 p-6 rounded-xl blease-border">
-                    <h3 class="text-xl font-black uppercase mb-2 text-accent">1. Der Broadcast-Unfall (.255)</h3>
+                    <h3 class="text-xl font-black uppercase mb-2 text-accent">1. Der Broadcast-Unfall (Host-Bits = 1)</h3>
                     <p>Der Broadcast wird von wichtigen Diensten genutzt. Wenn ein PC startet, ruft er via Broadcast: <strong>"Ist hier ein DHCP-Server? Ich brauche eine IP!"</strong>. Der Switch schickt diesen Ruf an <em>jeden</em> Port.</p>
-                    <p class="mt-2 text-red-900">Hätte dein PC diese Broadcast-IP fest zugewiesen, würde er den kompletten Netzwerkmüll der gesamten Firma abfangen müssen. Die Netzwerkkarte wäre zu 100% ausgelastet, der PC würde komplett einfrieren.</p>
+                    <p class="mt-2 text-red-900">Hätte dein PC diese Broadcast-IP fest zugewiesen (z.B. die .255 in einem /24 Netz), würde er den kompletten Netzwerkmüll der gesamten Firma abfangen müssen. Die Netzwerkkarte wäre zu 100% ausgelastet, der PC würde komplett einfrieren.</p>
                 </div>
 
                 <div class="bg-blue-50 p-6 rounded-xl blease-border">
-                    <h3 class="text-xl font-black uppercase mb-2 text-net">2. Der Netz-ID-Fehler (.0)</h3>
-                    <p>Die Netz-ID ist ein abstrakter Platzhalter. Wenn der Admin dem Router sagt: <em>"Route alles für das Netz 192.168.1.0 zu Port A"</em>, ist das eine Regel. Hätte ein PC nun exakt diese IP, wäre der Router logisch überfordert: Ist das nun eine Regel oder ein echtes Stück Hardware? Betriebssysteme (wie Windows) blockieren die Eingabe der .0 bei einer /24 Maske daher sofort mit einer Fehlermeldung.</p>
+                    <h3 class="text-xl font-black uppercase mb-2 text-net">2. Der Netz-ID-Fehler (Host-Bits = 0)</h3>
+                    <p>Die Netz-ID ist ein abstrakter Platzhalter. Wenn der Admin dem Router sagt: <em>"Route alles für das Netz 192.168.1.0 zu Port A"</em>, ist das eine Regel. Hätte ein PC nun exakt diese IP (die erste im Bereich), wäre der Router logisch überfordert: Ist das nun eine Regel oder ein echtes Stück Hardware? Betriebssysteme (wie Windows) blockieren die Eingabe der reinen Netz-Adresse daher sofort mit einer Fehlermeldung.</p>
                 </div>
             </div>
             <button onclick="closeModalForce('modal-reserviert')" class="blease-btn w-full mt-8 bg-black text-white py-4 rounded-xl font-black uppercase text-xl hover:bg-gray-800">Alles klar</button>
@@ -1284,57 +1284,47 @@
                 const last = bcast - 1;
                 
                 const tr = document.createElement('tr');
-                // Remove the bottom border here if we're adding a jump row, to keep it clean.
-                tr.className = (i < numSubnets - 1) ? "border-none transition-colors font-bold hover:bg-white/10" : "border-b-4 border-dashed border-white/20 transition-colors font-bold hover:bg-white/10";
-                let hostRangeHtml = newCidr < 31 ? `${subLong2ip(first)} <span class="mx-2 text-slate-500">bis</span> ${subLong2ip(last)}` : '<span class="text-slate-500 font-bold">N/A</span>';
-                
-                let netIp = subLong2ip(net);
-                let netParts = netIp.split('.');
-                let netFirst3 = netParts.slice(0,3).join('.');
-                let netLast = netParts[3];
+tr.className = "border-b-4 border-dashed border-white/20 transition-colors font-bold hover:bg-white/10";
+        let hostRangeHtml = newCidr < 31 ? `<span class="text-host">${subLong2ip(first)}</span> <span class="mx-2 text-slate-500">bis</span> <span class="text-host">${subLong2ip(last)}</span>` : '<span class="text-slate-500 font-bold">N/A</span>';
+        
+        let netIp = subLong2ip(net);
+        let netParts = netIp.split('.');
+        let netFirst3 = netParts.slice(0,3).join('.');
+        let netLast = netParts[3];
 
-                tr.innerHTML = `
-                    <td class="px-1 py-4 md:p-4 text-center font-black text-slate-500 text-[10px] md:text-sm">${i}</td>
-                    <td class="px-1 py-4 md:p-4 font-mono text-net">
-                        <div class="flex items-center text-[10px] md:text-sm">
-                            <span class="w-[9ch] md:w-[11ch] text-right inline-block">${netFirst3}</span>
-                            <span class="text-slate-500 mx-[1px] md:mx-[2px]">.</span>
-                            <span class="w-[3ch] text-left inline-block">${netLast}</span>
+        tr.innerHTML = `
+            <td class="px-1 py-4 md:px-4 md:py-6 text-center font-black text-slate-500 text-sm md:text-lg lg:text-xl">${i}</td>
+            <td class="px-1 py-4 md:px-4 md:py-6 font-mono text-net relative">
+                <div class="flex items-center text-sm md:text-lg lg:text-xl text-net relative z-0">
+                    <span class="w-[9ch] md:w-[11ch] text-right inline-block text-net">${netFirst3}</span>
+                    <span class="text-slate-500 mx-[1px] md:mx-[2px]">.</span>
+                    <span class="w-[3ch] text-left inline-block flex-shrink-0 text-net">${netLast}</span>
+                </div>
+                ${i < numSubnets - 1 ? `
+                <div class="absolute bottom-0 left-0 w-full translate-y-[calc(50%+2px)] flex items-start text-sm md:text-lg lg:text-xl px-1 md:px-4 z-10 pointer-events-none">
+                    <span class="w-[9ch] md:w-[11ch] inline-block"></span>
+                    <span class="mx-[1px] md:mx-[2px] opacity-0">.</span>
+                    <div class="w-[3ch] inline-block">
+                        <div class="flex justify-center -ml-2 md:-ml-4">
+                            <span class="bg-black border border-accent md:border-2 text-accent font-black text-[11px] md:text-sm px-1.5 md:px-2 py-0.5 md:py-1 rounded shadow-[1px_1px_0_0_currentColor] inline-flex items-center gap-0.5 md:gap-1.5 pointer-events-auto">
+                                <i class="fas fa-arrow-down animate-bounce text-[10px] md:text-xs"></i>
+                                <span>+${step}</span>
+                            </span>
                         </div>
-                    </td>
-                    <td class="px-1 py-4 md:p-4 font-mono text-host hidden lg:table-cell text-[10px] md:text-sm">${hostRangeHtml}</td>
-                    <td class="px-1 py-4 md:p-4 font-mono text-accent text-[10px] md:text-sm">${subLong2ip(bcast)}</td>
-                    <td class="px-1 py-4 md:p-4 text-center">
-                        <button onclick="showSubnetBits(${i}, ${net}, ${bcast}, ${baseCidr}, ${newCidr})" class="bg-white text-black px-2 md:px-4 py-1.5 md:py-2 rounded-lg blease-border font-black text-[10px] md:text-xs uppercase hover:bg-mask hover:text-white transition-colors blease-shadow-sm">
-                            <span class="hidden md:inline"><i class="fas fa-search-plus mr-1"></i></span>Bits
-                        </button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-
-                if (i < numSubnets - 1) {
-                    const jumpTr = document.createElement('tr');
-                    jumpTr.className = "border-b-4 border-dashed border-white/20";
-                    jumpTr.innerHTML = `
-                        <td class="p-0"></td>
-                        <td class="p-0 font-mono">
-                            <div class="flex items-start pt-1 pb-3 text-[10px] md:text-sm">
-                                <span class="w-[9ch] md:w-[11ch] inline-block"></span>
-                                <span class="mx-[1px] md:mx-[2px] opacity-0">.</span>
-                                <div class="w-[3ch] inline-block">
-                                    <div class="flex justify-center -ml-2 mt-1">
-                                        <span class="bg-black border border-accent text-accent font-black text-[9px] md:text-[10px] px-1 md:px-1.5 py-0.5 rounded shadow-[1px_1px_0_0_currentColor] inline-flex items-center gap-0.5 md:gap-1">
-                                            <i class="fas fa-arrow-down animate-bounce text-[8px] md:text-[9px]"></i>
-                                            <span>+${step}</span>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </td>
-                        <td colspan="3" class="p-0"></td>
-                    `;
-                    tbody.appendChild(jumpTr);
-                }
+                    </div>
+                </div>` : ''}
+            </td>
+            <td class="px-1 py-4 md:px-4 md:py-6 font-mono hidden lg:table-cell text-sm md:text-lg lg:text-xl text-host">${hostRangeHtml}</td>
+            <td class="px-1 py-4 md:px-4 md:py-6 font-mono text-sm md:text-lg lg:text-xl text-accent">
+                <span class="text-accent">${subLong2ip(bcast)}</span>
+            </td>
+            <td class="px-1 py-4 md:px-4 md:py-6 text-center">
+                <button onclick="showSubnetBits(${i}, ${net}, ${bcast}, ${baseCidr}, ${newCidr})" class="bg-white text-black w-8 h-8 md:w-12 md:h-12 inline-flex items-center justify-center rounded-lg border-2 border-black hover:bg-mask hover:text-white transition-colors blease-shadow-sm text-sm md:text-xl" title="Bit-Analyse">
+                    <i class="fas fa-search-plus"></i>
+                </button>
+            </td>
+        `;
+        tbody.appendChild(tr);
                 
                 currentNetLong += step;
             }
@@ -1357,14 +1347,16 @@
                     if (bitIndex < baseCidr) {
                         octetHTML += `<span class="text-slate-400">${bit}</span>`; // Base net
                     } else if (bitIndex < newCidr) {
-                        octetHTML += `<span class="text-mask font-black">${bit}</span>`; // Borrowed bits
+                        octetHTML += `<span class="text-mask font-black text-rose-400">${bit}</span>`; // Borrowed bits
                     } else {
                         octetHTML += `<span class="text-host font-bold">${bit}</span>`; // Host bits
                     }
                 }
                 blocks.push(octetHTML);
             }
-            return blocks.join('<span class="text-slate-500">.</span>');
+            return `<div class="grid grid-cols-2 lg:grid-cols-4 gap-1 md:gap-2 w-full text-center">` +
+                   blocks.map(b => `<div class="bg-gray-900 border border-white/10 rounded py-1.5 md:py-2.5 text-xs md:text-[15px] tracking-widest md:tracking-[0.15em] blease-shadow-sm">${b}</div>`).join('') +
+                   `</div>`;
         }
 
         function showSubnetBits(index, net, bcast, baseCidr, newCidr) {
@@ -1376,47 +1368,47 @@
                     <div class="absolute inset-0 opacity-10 font-mono text-8xl flex items-center justify-center -rotate-12 pointer-events-none text-white">10101</div>
                     <div class="relative z-10 font-bold uppercase text-xs md:text-sm tracking-widest text-slate-300">
                         Netz-ID (<span class="text-slate-400">Grau</span>) 
-                        <span class="mx-2">&bull;</span> Subnetz-Bits (<span class="text-mask">Lila</span>) 
+                        <span class="mx-2">&bull;</span> Subnetz-Bits (<span class="text-rose-400">Rot</span>) 
                         <span class="mx-2">&bull;</span> Host-Bits (<span class="text-host">Grün</span>)
                     </div>
                 </div>
                 
-                <div class="space-y-4 font-mono text-sm sm:text-base">
+                <div class="space-y-4 font-mono text-xs md:text-base">
                     <!-- Net ID -->
-                    <div class="bg-black p-4 rounded-xl blease-border border-2 flex flex-col md:flex-row md:items-center justify-between gap-3 relative overflow-hidden group">
+                    <div class="bg-black p-4 rounded-xl blease-border border-2 flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4 relative overflow-hidden group">
                         <div class="absolute top-0 left-0 w-2 h-full bg-net"></div>
-                        <span class="font-black text-net w-32 uppercase text-xs tracking-widest pl-2 flex-shrink-0">Netz-ID</span>
-                        <span class="tracking-widest bg-gray-900 px-2 md:px-4 py-2 rounded-lg text-center md:text-left text-[10px] sm:text-xs md:text-sm font-mono break-all w-full">${ipToBinaryHTML(net, baseCidr, newCidr)}</span>
-                        <span class="font-black text-white text-right md:min-w-[100px] flex-shrink-0">${subLong2ip(net)}</span>
+                        <span class="font-black text-net w-full md:w-32 uppercase tracking-widest pl-2 flex-shrink-0 text-center md:text-left text-sm md:text-base">Netz-ID</span>
+                        <div class="w-full">${ipToBinaryHTML(net, baseCidr, newCidr)}</div>
+                        <span class="font-black text-net text-center md:text-right md:w-[130px] flex-shrink-0 text-sm md:text-lg">${subLong2ip(net)}</span>
                     </div>
                     
                     <!-- First Host -->
-                    <div class="bg-black p-4 rounded-xl blease-border border-2 border-white/20 flex flex-col md:flex-row md:items-center justify-between gap-3 relative">
+                    <div class="bg-black p-4 rounded-xl blease-border border-2 border-white/20 flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4 relative">
                         <div class="absolute top-0 left-0 w-2 h-full bg-host"></div>
-                        <span class="font-black text-host w-32 uppercase text-xs tracking-widest pl-2 flex-shrink-0">1. Host</span>
-                        <span class="tracking-widest bg-gray-900 px-2 md:px-4 py-2 rounded-lg text-center md:text-left text-[10px] sm:text-xs md:text-sm font-mono break-all w-full">${ipToBinaryHTML(first, baseCidr, newCidr)}</span>
-                        <span class="font-bold text-gray-300 text-right md:min-w-[100px] flex-shrink-0">${subLong2ip(first)}</span>
+                        <span class="font-black text-host w-full md:w-32 uppercase tracking-widest pl-2 flex-shrink-0 text-center md:text-left text-sm md:text-base">1. Host</span>
+                        <div class="w-full">${ipToBinaryHTML(first, baseCidr, newCidr)}</div>
+                        <span class="font-bold text-host text-center md:text-right md:w-[130px] flex-shrink-0 text-sm md:text-lg">${subLong2ip(first)}</span>
                     </div>
                     
                     <!-- Spacer -->
-                    <div class="text-center text-slate-400 font-black py-1">
+                    <div class="text-center text-slate-400 font-black py-1 text-lg">
                         <i class="fas fa-ellipsis-v"></i>
                     </div>
                     
                     <!-- Last Host -->
-                    <div class="bg-black p-4 rounded-xl blease-border border-2 border-white/20 flex flex-col md:flex-row md:items-center justify-between gap-3 relative">
+                    <div class="bg-black p-4 rounded-xl blease-border border-2 border-white/20 flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4 relative">
                         <div class="absolute top-0 left-0 w-2 h-full bg-host"></div>
-                        <span class="font-black text-host w-32 uppercase text-xs tracking-widest pl-2 flex-shrink-0">Letzter Host</span>
-                        <span class="tracking-widest bg-gray-900 px-2 md:px-4 py-2 rounded-lg text-center md:text-left text-[10px] sm:text-xs md:text-sm font-mono break-all w-full">${ipToBinaryHTML(last, baseCidr, newCidr)}</span>
-                        <span class="font-bold text-gray-300 text-right md:min-w-[100px] flex-shrink-0">${subLong2ip(last)}</span>
+                        <span class="font-black text-host w-full md:w-32 uppercase tracking-widest pl-2 flex-shrink-0 text-center md:text-left text-sm md:text-base">Letzter Host</span>
+                        <div class="w-full">${ipToBinaryHTML(last, baseCidr, newCidr)}</div>
+                        <span class="font-bold text-host text-center md:text-right md:w-[130px] flex-shrink-0 text-sm md:text-lg">${subLong2ip(last)}</span>
                     </div>
                     
                     <!-- Broadcast -->
-                    <div class="bg-black p-4 rounded-xl blease-border border-2 flex flex-col md:flex-row md:items-center justify-between gap-3 relative overflow-hidden">
+                    <div class="bg-black p-4 rounded-xl blease-border border-2 flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4 relative overflow-hidden">
                         <div class="absolute top-0 left-0 w-2 h-full bg-accent"></div>
-                        <span class="font-black text-accent w-32 uppercase text-xs tracking-widest pl-2 flex-shrink-0">Broadcast</span>
-                        <span class="tracking-widest bg-gray-900 px-2 md:px-4 py-2 rounded-lg text-center md:text-left text-[10px] sm:text-xs md:text-sm font-mono break-all w-full">${ipToBinaryHTML(bcast, baseCidr, newCidr)}</span>
-                        <span class="font-black text-white text-right md:min-w-[100px] flex-shrink-0">${subLong2ip(bcast)}</span>
+                        <span class="font-black text-accent w-full md:w-32 uppercase tracking-widest pl-2 flex-shrink-0 text-center md:text-left text-sm md:text-base">Broadcast</span>
+                        <div class="w-full">${ipToBinaryHTML(bcast, baseCidr, newCidr)}</div>
+                        <span class="font-black text-accent text-center md:text-right md:w-[130px] flex-shrink-0 text-sm md:text-lg">${subLong2ip(bcast)}</span>
                     </div>
                 </div>
             `;
@@ -1632,15 +1624,15 @@
                 exp: "Ein /29 Subnetz bietet genau 6 vergebare Host-IPs (2^3 - 2 = 6). Das reicht exakt für die 3 Geräte und verschwendet im Gegensatz zu einem großen /24 Netz keine wertvollen Adressen."
             },
             {
-                q: "Theorie: Warum dürfen in einem Standard /24-Netzwerk die erste Host-Endung (.0) und die Letzte (.255) keinem Endgerät (PC) zugewiesen werden?",
+                q: "Theorie: Warum dürfen im Netzwerk die erste IP (alle Host-Bits 0) und die letzte IP (alle Host-Bits 1) keinem Endgerät (PC) zugewiesen werden?",
                 options: [
                     "Weil der DHCP-Server diese IPs für sich selbst reserviert.",
                     "Sie dürfen vergeben werden, es ist nur eine Empfehlung sie freizulassen.",
-                    "Die .0 repräsentiert das gesamte Netzwerk (Netz-ID), die .255 ist die Broadcast-Adresse für Rundrufe an alle.",
+                    "Die kleinste IP repräsentiert das gesamte Netzwerk (Netz-ID), die größte IP ist die Broadcast-Adresse für Rundrufe an alle.",
                     "Weil Router nur IP-Endungen von 1 bis 100 verwalten können."
                 ],
                 correct: 2,
-                exp: "Die Netzadresse ist für Routing-Tabellen reserviert (Identität der 'Straße'). Die Broadcast-Adresse ist hardwareseitig so definiert, dass der Switch Pakete an alle seine Ports weiterleitet."
+                exp: "Die Netzadresse (erste IP) ist für Routing-Tabellen reserviert (Identität der 'Straße'). Die Broadcast-Adresse (letzte IP) ist hardwareseitig so definiert, dass der Switch Pakete an alle seine Ports weiterleitet. In einem /24 Netz enden diese typischerweise auf .0 und .255."
             },
             {
                 q: "Rechenaufgabe: Welche der folgenden Adressen ist eine GÜLTIGE Host-Adresse im Netzwerk 17.128.0.0/9?",
