@@ -574,28 +574,28 @@
                 </div>
 
                 <!-- Topology Map -->
-                <div class="relative max-w-4xl min-w-[600px] mx-auto py-8">
+                <div class="relative w-[950px] mx-auto py-8">
                     <!-- SVG Connections (Background) -->
                     <svg class="absolute inset-0 w-full h-full pointer-events-none" style="z-index: 0;">
                         <!-- Thick default lines -->
                         <!-- LAN 1 to Router -->
-                        <line id="line-r1-sw1" x1="50%" y1="15%" x2="16.6%" y2="45%" stroke="#000" stroke-width="4" stroke-dasharray="8 8" class="sim-line" />
+                        <line id="line-r1-sw1" x1="50%" y1="15%" x2="16.67%" y2="45%" stroke="#000" stroke-width="4" stroke-dasharray="8 8" class="sim-line" />
                         <!-- LAN 2 to Router -->
                         <line id="line-r1-sw2" x1="50%" y1="15%" x2="50%" y2="45%" stroke="#000" stroke-width="4" stroke-dasharray="8 8" class="sim-line" />
                         <!-- LAN 3 to Router -->
-                        <line id="line-r1-sw3" x1="50%" y1="15%" x2="83.3%" y2="45%" stroke="#000" stroke-width="4" stroke-dasharray="8 8" class="sim-line" />
+                        <line id="line-r1-sw3" x1="50%" y1="15%" x2="83.33%" y2="45%" stroke="#000" stroke-width="4" stroke-dasharray="8 8" class="sim-line" />
 
                         <!-- LAN 1 PCs -->
-                        <line id="line-sw1-pc1" x1="16.6%" y1="45%" x2="8%" y2="80%" stroke="#000" stroke-width="4" stroke-dasharray="8 8" class="sim-line" />
-                        <line id="line-sw1-pc2" x1="16.6%" y1="45%" x2="25%" y2="80%" stroke="#000" stroke-width="4" stroke-dasharray="8 8" class="sim-line" />
+                        <line id="line-sw1-pc1" x1="16.67%" y1="45%" x2="7.8%" y2="80%" stroke="#000" stroke-width="4" stroke-dasharray="8 8" class="sim-line" />
+                        <line id="line-sw1-pc2" x1="16.67%" y1="45%" x2="25.5%" y2="80%" stroke="#000" stroke-width="4" stroke-dasharray="8 8" class="sim-line" />
                         
                         <!-- LAN 2 PCs -->
-                        <line id="line-sw2-pc3" x1="50%" y1="45%" x2="41.6%" y2="80%" stroke="#000" stroke-width="4" stroke-dasharray="8 8" class="sim-line" />
-                        <line id="line-sw2-pc4" x1="50%" y1="45%" x2="58.3%" y2="80%" stroke="#000" stroke-width="4" stroke-dasharray="8 8" class="sim-line" />
+                        <line id="line-sw2-pc3" x1="50%" y1="45%" x2="41.2%" y2="80%" stroke="#000" stroke-width="4" stroke-dasharray="8 8" class="sim-line" />
+                        <line id="line-sw2-pc4" x1="50%" y1="45%" x2="58.8%" y2="80%" stroke="#000" stroke-width="4" stroke-dasharray="8 8" class="sim-line" />
 
                         <!-- LAN 3 PCs -->
-                        <line id="line-sw3-pc5" x1="83.3%" y1="45%" x2="75%" y2="80%" stroke="#000" stroke-width="4" stroke-dasharray="8 8" class="sim-line" />
-                        <line id="line-sw3-pc6" x1="83.3%" y1="45%" x2="91.6%" y2="80%" stroke="#000" stroke-width="4" stroke-dasharray="8 8" class="sim-line" />
+                        <line id="line-sw3-pc5" x1="83.33%" y1="45%" x2="74.5%" y2="80%" stroke="#000" stroke-width="4" stroke-dasharray="8 8" class="sim-line" />
+                        <line id="line-sw3-pc6" x1="83.33%" y1="45%" x2="92.2%" y2="80%" stroke="#000" stroke-width="4" stroke-dasharray="8 8" class="sim-line" />
                     </svg>
 
                     <!-- Devices (Foreground) -->
@@ -616,69 +616,78 @@
                         </div>
 
                         <!-- Switch Level -->
-                        <div class="h-32 w-full flex justify-between items-center px-4 md:px-12 mt-4">
+                        <div class="h-32 w-full grid grid-cols-3 justify-items-center items-center mt-4">
                             <!-- LAN 1 Switch -->
-                            <div id="node-sw1" class="device bg-white border-4 border-black rounded-xl p-3 flex flex-col items-center w-28 blease-shadow-sm">
+                            <div id="node-sw1" class="device bg-white border-4 border-black rounded-xl p-3 flex flex-col items-center w-24 md:w-36 blease-shadow-sm h-full justify-center">
                                 <i class="fas fa-random text-3xl mb-2"></i>
-                                <span class="font-black uppercase">SW 1</span>
+                                <span class="font-black uppercase text-sm">SW 1</span>
                                 <span class="text-[10px] font-bold bg-black text-white px-2 py-1 rounded-full mt-1">LAN 1</span>
                             </div>
                             <!-- LAN 2 Switch -->
-                            <div id="node-sw2" class="device bg-white border-4 border-black rounded-xl p-3 flex flex-col items-center w-28 blease-shadow-sm">
+                            <div id="node-sw2" class="device bg-white border-4 border-black rounded-xl p-3 flex flex-col items-center w-24 md:w-36 blease-shadow-sm h-full justify-center">
                                 <i class="fas fa-random text-3xl mb-2"></i>
-                                <span class="font-black uppercase">SW 2</span>
+                                <span class="font-black uppercase text-sm">SW 2</span>
                                 <span class="text-[10px] font-bold bg-black text-white px-2 py-1 rounded-full mt-1">LAN 2</span>
                             </div>
                             <!-- LAN 3 Switch -->
-                            <div id="node-sw3" class="device bg-white border-4 border-black rounded-xl p-3 flex flex-col items-center w-28 blease-shadow-sm">
+                            <div id="node-sw3" class="device bg-white border-4 border-black rounded-xl p-3 flex flex-col items-center w-24 md:w-36 blease-shadow-sm h-full justify-center">
                                 <i class="fas fa-random text-3xl mb-2"></i>
-                                <span class="font-black uppercase">SW 3</span>
+                                <span class="font-black uppercase text-sm">SW 3</span>
                                 <span class="text-[10px] font-bold bg-black text-white px-2 py-1 rounded-full mt-1">LAN 3</span>
                             </div>
                         </div>
 
                         <!-- PC Level -->
-                        <div class="w-full flex justify-between items-start mt-8">
+                        <div class="w-full grid grid-cols-3 justify-items-center items-start mt-8">
                             <!-- LAN 1 PCs -->
                             <div class="flex gap-2 md:gap-6">
-                                <div id="node-pc1" class="device bg-white border-4 border-black rounded-xl p-3 flex flex-col items-center blease-shadow-sm w-24 md:w-36 transition-colors">
+                                <div id="node-pc1" class="device bg-white border-4 border-black rounded-xl p-3 flex flex-col items-center blease-shadow-sm w-24 md:w-36 transition-colors h-full justify-start">
                                     <i class="fas fa-desktop text-4xl mb-2"></i>
                                     <span class="font-black uppercase text-sm" id="lbl-pc1-name">PC 1</span>
                                     <span class="text-[9px] md:text-[11px] font-mono font-bold mt-1" id="lbl-pc1-ip">192.168.1.10</span>
                                     <span class="text-[8px] md:text-[10px] font-mono text-slate-500 mt-1" id="lbl-pc1-mask">/24</span>
                                     <span class="text-[8px] md:text-[10px] font-mono text-slate-500" id="lbl-pc1-gw">GW: .1.1</span>
                                 </div>
-                                <div id="node-pc2" class="device bg-white border-4 border-black rounded-xl p-3 flex flex-col items-center blease-shadow-sm w-24 md:w-36">
+                                <div id="node-pc2" class="device bg-white border-4 border-black rounded-xl p-3 flex flex-col items-center blease-shadow-sm w-24 md:w-36 h-full justify-start">
                                     <i class="fas fa-desktop text-4xl mb-2"></i>
                                     <span class="font-black uppercase text-sm">PC 2</span>
                                     <span class="text-[9px] md:text-[11px] font-mono font-bold mt-1">192.168.1.11</span>
+                                    <span class="text-[8px] md:text-[10px] font-mono text-transparent mt-1 select-none">/24</span>
+                                    <span class="text-[8px] md:text-[10px] font-mono text-transparent select-none">GW: .1.1</span>
                                 </div>
                             </div>
                             <!-- LAN 2 PCs -->
                             <div class="flex gap-2 md:gap-6">
-                                <div id="node-pc3" class="device bg-white border-4 border-black rounded-xl p-3 flex flex-col items-center blease-shadow-sm w-24 md:w-36 transition-colors">
+                                <div id="node-pc3" class="device bg-white border-4 border-black rounded-xl p-3 flex flex-col items-center blease-shadow-sm w-24 md:w-36 transition-colors h-full justify-start">
                                     <i class="fas fa-desktop text-4xl mb-2"></i>
                                     <span class="font-black uppercase text-sm" id="lbl-pc3-name">PC 3</span>
                                     <span class="text-[9px] md:text-[11px] font-mono font-bold mt-1" id="lbl-pc3-ip">172.16.1.10</span>
                                     <span class="text-[8px] md:text-[10px] font-mono text-slate-500 mt-1" id="lbl-pc3-mask">/24</span>
+                                    <span class="text-[8px] md:text-[10px] font-mono text-transparent select-none">GW: .1.1</span>
                                 </div>
-                                <div id="node-pc4" class="device bg-white border-4 border-black rounded-xl p-3 flex flex-col items-center blease-shadow-sm w-24 md:w-36">
+                                <div id="node-pc4" class="device bg-white border-4 border-black rounded-xl p-3 flex flex-col items-center blease-shadow-sm w-24 md:w-36 h-full justify-start">
                                     <i class="fas fa-desktop text-4xl mb-2"></i>
                                     <span class="font-black uppercase text-sm">PC 4</span>
                                     <span class="text-[9px] md:text-[11px] font-mono font-bold mt-1">172.16.1.11</span>
+                                    <span class="text-[8px] md:text-[10px] font-mono text-transparent mt-1 select-none">/24</span>
+                                    <span class="text-[8px] md:text-[10px] font-mono text-transparent select-none">GW: .1.1</span>
                                 </div>
                             </div>
                             <!-- LAN 3 PCs -->
                             <div class="flex gap-2 md:gap-6">
-                                <div id="node-pc5" class="device bg-white border-4 border-black rounded-xl p-3 flex flex-col items-center blease-shadow-sm w-24 md:w-36">
+                                <div id="node-pc5" class="device bg-white border-4 border-black rounded-xl p-3 flex flex-col items-center blease-shadow-sm w-24 md:w-36 h-full justify-start">
                                     <i class="fas fa-desktop text-4xl mb-2"></i>
                                     <span class="font-black uppercase text-sm">PC 5</span>
                                     <span class="text-[9px] md:text-[11px] font-mono font-bold mt-1">10.0.0.2</span>
+                                    <span class="text-[8px] md:text-[10px] font-mono text-transparent mt-1 select-none">/24</span>
+                                    <span class="text-[8px] md:text-[10px] font-mono text-transparent select-none">GW: .1.1</span>
                                 </div>
-                                <div id="node-pc6" class="device bg-white border-4 border-black rounded-xl p-3 flex flex-col items-center blease-shadow-sm w-24 md:w-36">
+                                <div id="node-pc6" class="device bg-white border-4 border-black rounded-xl p-3 flex flex-col items-center blease-shadow-sm w-24 md:w-36 h-full justify-start">
                                     <i class="fas fa-desktop text-4xl mb-2"></i>
                                     <span class="font-black uppercase text-sm">PC 6</span>
                                     <span class="text-[9px] md:text-[11px] font-mono font-bold mt-1">10.0.0.3</span>
+                                    <span class="text-[8px] md:text-[10px] font-mono text-transparent mt-1 select-none">/24</span>
+                                    <span class="text-[8px] md:text-[10px] font-mono text-transparent select-none">GW: .1.1</span>
                                 </div>
                             </div>
                         </div>
